@@ -1,0 +1,59 @@
+<div class="lead-toolbar">
+    <div class="lead-left">
+        <h3 class="title">Lead Management</h3>
+        <h6 class="subtitle">Leads</h6>
+    </div>
+
+    <div class="lead-right">
+        <label class="board-checkbox">
+            <input type="checkbox" /> Board view
+        </label>
+
+        <button class="export-btn">
+            <i class="fas fa-download"></i> Export To Excel
+        </button>
+
+        <button class="create-btn">
+            Create
+        </button>
+    </div>
+</div>
+<kendo-excelexport fileName="Products.xlsx" #excelexport>
+    <kendo-excelexport-column *ngFor="let field of fields" [field]="field" [locked]="field === 'ProductID'"
+        [width]="200">
+    </kendo-excelexport-column>
+</kendo-excelexport>
+
+
+<div class="inner">
+    <div class="lead-filters">
+        <kendo-label>
+          <kendo-dropdownlist [data]="listItems" value="All Leads"></kendo-dropdownlist>
+        </kendo-label>
+      
+        <kendo-label>
+          <kendo-dropdownlist [data]="listItems" placeholder="Select Saved preference"></kendo-dropdownlist>
+        </kendo-label>
+      
+        <div class="search-group">
+          <input type="search" placeholder="Search" />
+          <button class="search-btn">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      
+        <div class="switch-group">
+          <span>Labels</span>
+          <kendo-switch
+            #switch
+            onLabel="Non-Intl"
+            offLabel="Intl"
+          ></kendo-switch>
+        </div>
+      
+        <button class="create-btn-div">Clear Filters</button>
+        <button class="create-btn-div">Bulk Edit</button>
+        <button class="create-btn-div">Save Preference</button>
+      </div>
+      
+</div>

@@ -1,0 +1,242 @@
+.lead-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .lead-left {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  
+  .title {
+    margin: 0;
+    font-size: 1.5rem;
+    color:#9acd32;
+  }
+  
+  .subtitle {
+    margin: 0;
+    font-size: 1rem;
+    color: yellowgreen;
+  }
+  
+  .lead-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  .board-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  /* Style the checkbox */
+  .board-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: yellowgreen; /* Works in modern browsers */
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  /* Optional: Style label text color when checked */
+  .board-checkbox input[type="checkbox"]:checked + span {
+    color: yellowgreen;
+  }
+  
+  /* Reusable button base */
+.create-btn,
+.export-btn {
+  background-color: yellowgreen;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.create-btn:hover,
+.export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Optional active click effect */
+.create-btn:active,
+.export-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Export icon spacing */
+.export-btn i {
+  margin-right: 0.2rem;
+}
+@media (max-width: 320px) {
+    .lead-toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  
+    .lead-left,
+    .lead-right {
+      width: 100%;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+  
+    .lead-right {
+      justify-content: flex-start;
+      gap: 0.75rem;
+    }
+  
+    .create-btn,
+    .export-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  
+    .board-checkbox {
+      width: 100%;
+    }
+  }
+  
+  .inner{
+    border: 2px solid yellowgreen;
+    border-radius: 10px;
+  }
+  /* Add to your CSS */
+
+.lead-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    justify-content: flex-start;
+  }
+  
+  /* Allow elements to grow and stack better on small screens */
+  .lead-filters > * {
+    flex: 1 1 auto;
+    min-width: 160px;
+  }
+  
+  /* Grouped search box */
+  .search-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 300px;
+    flex: 1 1 200px;
+  }
+  
+  .search-group input[type="search"] {
+    flex: 1;
+    border: none;
+    padding: 0.5rem;
+    outline: none;
+    font-size: 14px;
+  }
+  
+  .search-btn {
+    background-color: yellowgreen;
+    border: none;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .switch-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+  
+  /* Buttons grow responsively */
+  .create-btn {
+    white-space: nowrap;
+    flex: 1 1 auto;
+    min-width: 150px;
+  }
+  
+  /* Responsive media query */
+  @media (max-width: 768px) {
+    .lead-filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .lead-filters > * {
+      width: 100%;
+    }
+  
+    .search-group {
+      max-width: 100%;
+    }
+  
+    .switch-group {
+      justify-content: space-between;
+    }
+  }
+  .create-btn-div {
+    background-color: yellowgreen;
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+    height: 36px;
+    min-width: 120px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Hover and active effects */
+  .create-btn-div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .create-btn-div:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Optional icon spacing if you're using icons inside */
+  .create-btn-div i {
+    margin-right: 0.4rem;
+  }
+    

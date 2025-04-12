@@ -1,0 +1,66 @@
+::ng-deep kendo-tabstrip {
+    padding: 0;
+    background-color: white;
+    border-bottom: 3px solid yellowgreen;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  /* Scrollable horizontal tabs */
+  ::ng-deep .k-tabstrip-items {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    background-color: white;
+    scrollbar-width: thin;
+    border-bottom: 3px solid yellowgreen;
+    margin-bottom: -1px;
+  }
+  
+  /* Scrollbar style */
+  ::ng-deep .k-tabstrip-items::-webkit-scrollbar {
+    height: 5px;
+  }
+  ::ng-deep .k-tabstrip-items::-webkit-scrollbar-thumb {
+    background-color: yellowgreen;
+    border-radius: 4px;
+  }
+  
+  /* Tab item style - sleek, small, dark background */
+  ::ng-deep .k-tabstrip-items .k-item {
+    color: #f1f1f1 !important;
+    background-color: #003366;
+    font-weight: 500;
+    font-size: 13px;
+    /* padding: 4px 10px; */
+    margin: 0 3px;
+    border-radius: 8px 8px 0 0;
+    /* transition: background-color 0.3s ease; */
+    flex-shrink: 0;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  /* Active tab - yellowgreen and white text */
+  ::ng-deep .k-tabstrip-items .k-item.k-active {
+    background-color: yellowgreen !important;
+    color: white !important;
+  }
+  
+  /* Hover effect */
+  ::ng-deep .k-tabstrip-items .k-item:hover {
+    background-color: #004080;
+    cursor: pointer;
+  }
+  
+  /* Tab content - light and clean */
+  ::ng-deep .k-tabstrip-content {
+    background-color: #f9f9f9;
+    color: #222;
+    /* padding: 16px; */
+    border-radius: 0 0 8px 8px;
+    font-size: 14px;
+  }

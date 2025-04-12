@@ -1,0 +1,87 @@
+<nav class="navbar navbar-expand-lg" style="background-color: #ffffff;">
+    <div class="container-fluid">
+      <!-- Left-aligned items -->
+      <a class="navbar-brand text-white" href="#"></a>
+  
+      <!-- Mobile toggle button -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarItems">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <!-- Navbar right content -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarItems">
+        <ul class="navbar-nav align-items-center gap-2">
+  
+          <!-- Envelope Icon -->
+          <li class="nav-item">
+            <a class="nav-link p-0" href="#">
+              <div class="icon-btn">
+                <i class="fas fa-envelope text-white"></i>
+              </div>
+            </a>
+          </li>
+  
+          <!-- Settings Icon -->
+          <li class="nav-item">
+            <a class="nav-link p-0" href="#">
+              <div class="icon-btn">
+                <i class="fas fa-cog text-white"></i>
+              </div>
+            </a>
+          </li>
+  
+          <!-- Notification Icon with Badge -->
+          <li class="nav-item position-relative">
+            <a class="nav-link p-0" href="#">
+              <div class="icon-btn">
+                <i class="fas fa-bell text-white"></i>
+              </div>
+              <span class="badge bg-success position-absolute top-0 start-100 translate-middle rounded-pill px-1">67</span>
+            </a>
+          </li>
+  
+          <!-- Inbox Icon -->
+          <li class="nav-item">
+            <a class="nav-link p-0" href="#">
+              <div class="icon-btn">
+                <i class="fas fa-inbox text-white"></i>
+              </div>
+            </a>
+          </li>
+  
+          <!-- Admin Profile -->
+          <li class="nav-item d-flex align-items-center gap-2 text-white">
+            <div class="avatar-circle">A</div>
+            <div class="d-flex flex-column lh-sm" style="color: black;">
+              <span class="fw-bold">admin</span>
+              <small>Admin</small>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+</nav>
+
+
+
+  <!-- <kendo-tabstrip>
+    <kendo-tabstrip-tab title="Tab 1">
+      <ng-template kendoTabContent>
+        <p>Tab 1 Content</p>
+      </ng-template>
+    </kendo-tabstrip-tab>
+    <kendo-tabstrip-tab title="Tab 2" [selected]="true">
+      <ng-template kendoTabContent>
+        <p>Tab 2 Content</p>
+      </ng-template>
+    </kendo-tabstrip-tab>
+    <kendo-tabstrip-tab title="Tab 3">
+      <ng-template kendoTabContent>
+        <p>Tab 3 Content</p>
+      </ng-template>
+    </kendo-tabstrip-tab>
+</kendo-tabstrip> -->
+
+
+<router-outlet></router-outlet>
+  
