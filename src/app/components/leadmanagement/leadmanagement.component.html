@@ -147,7 +147,12 @@
   
       [pageable]="true"
       [sortable]="true"
-      [navigable]="true">
+      [navigable]="true"
+      
+      (edit)="editHandler($event)"
+  (cancel)="cancelHandler($event)"
+  (save)="saveHandler($event)"
+  (remove)="removeHandler($event)">
     <kendo-grid-checkbox-column [columnMenu]="false" [width]="50">
     </kendo-grid-checkbox-column>
     
@@ -194,29 +199,23 @@
     <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date"
       [width]="150"></kendo-grid-column>
 
-      <kendo-grid-command-column
-      title="Commands"
-      [width]="240"
-      [sticky]="true"
-      [headerStyle]="{ textAlign: 'center' }"
-    >
-      <ng-template kendoGridCellTemplate let-isNew="isNew">
-        <button kendoGridEditCommand [primary]="true">Edit</button>
-        <button kendoGridRemoveCommand>Remove</button>
-        <button kendoGridSaveCommand>
-          {{ isNew ? "Add" : "Update" }}
-        </button>
-        <button kendoGridCancelCommand>
-          {{ isNew ? "Discard" : "Cancel" }}
-        </button>
-      </ng-template>
-    </kendo-grid-command-column>
+      <kendo-grid-command-column title="Actions" [width]="220">
+        <ng-template kendoGridCellTemplate let-isNew="isNew">
+          <button kendoGridEditCommand class="k-button k-primary">Edit</button>
+          <button kendoGridRemoveCommand class="k-button k-danger">Remove</button>
+        </ng-template>
+        <ng-template kendoGridEditTemplate let-isNew="isNew">
+          <button kendoGridSaveCommand class="k-button k-primary">Save</button>
+          <button kendoGridCancelCommand class="k-button">Cancel</button>
+        </ng-template>
+      </kendo-grid-command-column>
+    
   </kendo-grid>
 
   <kendo-grid
   [kendoGridBinding]="gridData"
   [height]="450"
-
+  [editable]="'inline'"
   (edit)="editHandler($event)"
   (cancel)="cancelHandler($event)"
   (save)="saveHandler($event)"
@@ -232,12 +231,11 @@
     <ng-template kendoGridCellTemplate let-isNew="isNew">
       <button kendoGridEditCommand class="k-button k-primary">Edit</button>
       <button kendoGridRemoveCommand class="k-button k-danger">Remove</button>
-    </ng-template>
-    <ng-template kendoGridEditTemplate let-isNew="isNew">
-      <button kendoGridSaveCommand class="k-button k-primary">Save</button>
+      <button kendoGridSaveCommand class="k-button k-primary" [disabled]="formGroup.invalid">Save</button>
       <button kendoGridCancelCommand class="k-button">Cancel</button>
     </ng-template>
   </kendo-grid-command-column>
+  
 </kendo-grid>
 
 
