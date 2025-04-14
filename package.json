@@ -21,6 +21,7 @@
     "@angular/router": "^19.2.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@progress/kendo-angular-buttons": "^18.5.0",
+    "@progress/kendo-angular-charts": "^18.5.0",
     "@progress/kendo-angular-common": "^18.5.0",
     "@progress/kendo-angular-dateinputs": "18.5.0",
     "@progress/kendo-angular-dialog": "^18.5.0",
