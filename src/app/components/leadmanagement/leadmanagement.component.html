@@ -9,19 +9,46 @@
       <input type="checkbox" /> Board view
     </label>
 
-    <button class="export-btn">
+    <!-- <button class="export-btn">
+      <i class="fas fa-download"></i> Export To Excel
+    </button> -->
+    <button class="export-btn" kendoButton type="button" (click)="exportToExcel()">
       <i class="fas fa-download"></i> Export To Excel
     </button>
-
+    <!-- <button kendoButton (click)="exportToExcel()">Export to Excel</button> -->
+    <kendo-excelexport
+    #excelExport
+    [data]="gridItems"
+    fileName="LeadManagementData.xlsx">
+    
+    <kendo-excelexport-column field="RecordID" title="Record Id"></kendo-excelexport-column>
+    <kendo-excelexport-column field="lastName" title="Last Name"></kendo-excelexport-column>
+    <kendo-excelexport-column field="firstName" title="First Name"></kendo-excelexport-column>
+    <kendo-excelexport-column field="email" title="Email"></kendo-excelexport-column>
+    <kendo-excelexport-column field="phoneType" title="Primary Phone Type"></kendo-excelexport-column>
+    <kendo-excelexport-column field="leadId" title="LMP Lead ID"></kendo-excelexport-column>
+    <kendo-excelexport-column field="appointmentType" title="Appointment Type"></kendo-excelexport-column>
+    <kendo-excelexport-column field="bookingAgency" title="Booking Agency"></kendo-excelexport-column>
+    <kendo-excelexport-column field="assignedDate" title="Assigned Date"></kendo-excelexport-column>
+    <kendo-excelexport-column field="salesRep" title="Sales Rep"></kendo-excelexport-column>
+    <kendo-excelexport-column field="coordinator" title="Coordinator"></kendo-excelexport-column>
+    <kendo-excelexport-column field="syncToMobile" title="Sync to Mobile"></kendo-excelexport-column>
+    <kendo-excelexport-column field="createdSource" title="Created Source"></kendo-excelexport-column>
+    <kendo-excelexport-column field="mobileSyncStatus" title="Mobile Sync Status"></kendo-excelexport-column>
+    <kendo-excelexport-column field="effectiveDate" title="Effective Date"></kendo-excelexport-column>
+    <kendo-excelexport-column field="validThrough" title="Valid Through"></kendo-excelexport-column>
+  
+  </kendo-excelexport>
+  
+  <!-- Add Export Button -->
+  
+  
     <button class="create-btn">
       Create
     </button>
   </div>
 </div>
-<kendo-excelexport fileName="Products.xlsx" #excelexport>
-  <kendo-excelexport-column *ngFor="let field of listItems" [field]="field" [locked]="field === 'ProductID'" [width]="200">
-  </kendo-excelexport-column>
-</kendo-excelexport>
+
 
 
 <div class="inner">
@@ -36,7 +63,7 @@
 
     <div class="search-group">
       <kendo-textbox [style.width.px]="165" placeholder="Search in all columns..."
-                                (valueChange)="onFilter($event)"></kendo-textbox>
+        (valueChange)="onFilter($event)"></kendo-textbox>
     </div>
 
     <div class="searchbtn">
@@ -46,121 +73,40 @@
     </div>
 
     <div class="custom-pill-toggle">
-      <span 
-        class="pill-option" 
-        [class.active]="!isNonIntl" 
-        (click)="isNonIntl = false">
+      <span class="pill-option" [class.active]="!isNonIntl" (click)="isNonIntl = false">
         Intl
       </span>
-      <span 
-        class="pill-option" 
-        [class.active]="isNonIntl" 
-        (click)="isNonIntl = true">
+      <span class="pill-option" [class.active]="isNonIntl" (click)="isNonIntl = true">
         Non-Intl
       </span>
     </div>
-    
-    
+
+
 
     <button class="create-btn-div">Clear Filters</button>
     <button class="create-btn-div">Bulk Edit</button>
     <button class="create-btn-div">Save Preference</button>
   </div>
 
-<!-- 
-  <kendo-grid
-  
-  [kendoGridBinding]="gridItems"
-  [pageSize]="10"
-  [pageable]="true"
-  [sortable]="true"
-  [navigable]="true"
-  [resizable]="true"
-  [columnMenu]="true"
-  style="height: 600px;"
->
 
-   <ng-template kendoGridToolbarTemplate>
-    <button kendoGridAddCommand>Add new</button>
-  </ng-template> 
-
-
-  <kendo-grid-checkbox-column [width]="50"></kendo-grid-checkbox-column>
-
-
-  <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true">
-    <ng-template kendoGridCellTemplate>
-      <button kendoButton themeColor="primary" size="small">View</button>
-    </ng-template>
-  </kendo-grid-column>
-
-  <kendo-grid-column field="lastName" title="Last Name" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="firstName" title="First Name" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="email" title="Email" [width]="200"></kendo-grid-column>
-  <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
-  <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="appointmentType" title="Appointment Type" [width]="180"></kendo-grid-column>
-  <kendo-grid-column field="bookingAgency" title="Booking Agency" [width]="180"></kendo-grid-column>
-  <kendo-grid-column field="assignedDate" title="Assigned Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
-
-  <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
-    <ng-template kendoGridCellTemplate let-dataItem>
-      <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
-    </ng-template>
-  </kendo-grid-column>
-
-  <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
-
-
-  <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
-    <ng-template kendoGridCellTemplate>
-      <span class="text-muted">N/A</span>
-    </ng-template>
-  </kendo-grid-column>
-
-  <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date" [width]="150"></kendo-grid-column>
-
-
-  <kendo-grid-command-column
-    title="Commands"
-    [width]="240"
-    [sticky]="false"
-    [headerStyle]="{ textAlign: 'center' }"
-  >
-    <ng-template kendoGridCellTemplate let-isNew="isNew">
-      <button kendoGridEditCommand [primary]="true">Edit</button>
-      <button kendoGridRemoveCommand>Remove</button>
-      <button kendoGridSaveCommand>
-        {{ isNew ? "Add" : "Update" }}
-      </button>
-      <button kendoGridCancelCommand>
-        {{ isNew ? "Discard" : "Cancel" }}
-      </button>
-    </ng-template>
-  </kendo-grid-command-column>
-</kendo-grid> -->
-
-  <kendo-grid [kendoGridBinding]="gridItems" [sortable]="true" [columnMenu]="true" [pageSize]="7"
-  
-      [pageable]="true"
-      [sortable]="true"
-      [navigable]="true"
-      
-      (edit)="editHandler($event)"
-  (cancel)="cancelHandler($event)"
-  (save)="saveHandler($event)"
-  (remove)="removeHandler($event)">
+  <kendo-grid [data]="gridItems" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
+    [navigable]="true" [height]="450" (pageChange)="pageChange($event)" (edit)="editHandler($event)"
+    (cancel)="cancelHandler($event)" (save)="saveHandler($event)" (remove)="removeHandler($event)">
     <kendo-grid-checkbox-column [columnMenu]="false" [width]="50">
     </kendo-grid-checkbox-column>
-    
+
     <!-- Action Column Placeholder -->
     <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
       <ng-template kendoGridCellTemplate>
-        <span class="k-icon k-i-eye"></span>
-        <button kendoButton class="action_button" size="small"><i class="fas fa-eye"></i> Action</button>
+        <!-- <span class="k-icon k-i-eye"></span>
+        <button kendoButton class="action_button" size="small"><i class="fas fa-eye"></i> Action</button> -->
+        <kendo-splitbutton
+          [data]="listItems"
+          class="action_button"
+          
+        >
+        <i class="fas fa-eye"></i> Action
+        </kendo-splitbutton>
       </ng-template>
     </kendo-grid-column>
 
@@ -199,108 +145,14 @@
     <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date"
       [width]="150"></kendo-grid-column>
 
-      <kendo-grid-command-column title="Actions" [width]="220">
-        <ng-template kendoGridCellTemplate let-isNew="isNew">
-          <button kendoGridEditCommand class="k-button k-primary">Edit</button>
-          <button kendoGridRemoveCommand class="k-button k-danger">Remove</button>
-        </ng-template>
-        <ng-template kendoGridEditTemplate let-isNew="isNew">
-          <button kendoGridSaveCommand class="k-button k-primary">Save</button>
-          <button kendoGridCancelCommand class="k-button">Cancel</button>
-        </ng-template>
-      </kendo-grid-command-column>
-    
+    <kendo-grid-command-column title="ActionsButtons" [width]="220" [sticky]="true">
+      <ng-template kendoGridCellTemplate let-isNew="isNew">
+        <button kendoGridEditCommand class="k-button k-primary">Edit</button>
+        <button kendoGridRemoveCommand class="k-button k-danger">Remove</button>
+        <button kendoGridSaveCommand class="k-button k-primary" [disabled]="formGroup.invalid">Save</button>
+        <button kendoGridCancelCommand class="k-button">Cancel</button>
+      </ng-template>
+    </kendo-grid-command-column>
+
   </kendo-grid>
 
-  <kendo-grid
-  [kendoGridBinding]="gridData"
-  [height]="450"
-  [editable]="'inline'"
-  (edit)="editHandler($event)"
-  (cancel)="cancelHandler($event)"
-  (save)="saveHandler($event)"
-  (remove)="removeHandler($event)"
->
-  <kendo-grid-column field="lastName" title="Last Name"></kendo-grid-column>
-  <kendo-grid-column field="firstName" title="First Name"></kendo-grid-column>
-  <kendo-grid-column field="email" title="Email"></kendo-grid-column>
-  <kendo-grid-column field="phoneType" title="Phone Type"></kendo-grid-column>
-  <kendo-grid-column field="leadId" title="Lead ID"></kendo-grid-column>
-
-  <kendo-grid-command-column title="Actions" [width]="220">
-    <ng-template kendoGridCellTemplate let-isNew="isNew">
-      <button kendoGridEditCommand class="k-button k-primary">Edit</button>
-      <button kendoGridRemoveCommand class="k-button k-danger">Remove</button>
-      <button kendoGridSaveCommand class="k-button k-primary" [disabled]="formGroup.invalid">Save</button>
-      <button kendoGridCancelCommand class="k-button">Cancel</button>
-    </ng-template>
-  </kendo-grid-command-column>
-  
-</kendo-grid>
-
-
-
-
-
-
-    <!-- <kendo-grid
-      [kendoGridReactiveEditing]="createFormGroup"
-      [kendoGridBinding]="gridData"
-      [pageSize]="10"
-      [pageable]="true"
-      [sortable]="true"
-      [navigable]="true"
-      [style.width.px]="700"
-    >
-      <ng-template kendoGridToolbarTemplate>
-        <button kendoGridAddCommand>Add new</button>
-      </ng-template>
-      <kendo-grid-column
-        field="ProductID"
-        title="ID"
-        [editable]="false"
-        [width]="50"
-        [sticky]="true"
-      ></kendo-grid-column>
-      <kendo-grid-column
-        field="ProductName"
-        title="Product Name"
-        [width]="300"
-      ></kendo-grid-column>
-      <kendo-grid-column
-        field="UnitPrice"
-        editor="numeric"
-        title="Price"
-        [width]="200"
-      ></kendo-grid-column>
-      <kendo-grid-column
-        field="Discontinued"
-        editor="boolean"
-        title="Discontinued"
-        [width]="200"
-      ></kendo-grid-column>
-      <kendo-grid-column
-        field="UnitsInStock"
-        editor="numeric"
-        title="Units In Stock"
-        [width]="200"
-      ></kendo-grid-column>
-      <kendo-grid-command-column
-        [width]="160"
-        [sticky]="true"
-        [headerStyle]="commandColumnStyles"
-        [style]="commandColumnStyles"
-        [footerStyle]="commandColumnStyles"
-      >
-        <ng-template kendoGridCellTemplate let-isNew="isNew">
-          <button kendoGridEditCommand [primary]="true">Edit</button>
-          <button kendoGridRemoveCommand>Remove</button>
-          <button kendoGridSaveCommand>
-            {{ isNew ? "Add" : "Update" }}
-          </button>
-          <button kendoGridCancelCommand>
-            {{ isNew ? "Discard" : "Cancel" }}
-          </button>
-        </ng-template>
-      </kendo-grid-command-column>
-    </kendo-grid> -->
