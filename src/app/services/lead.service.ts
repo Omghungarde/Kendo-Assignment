@@ -1,29 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Record } from '../employees';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecordService {
-  private apiUrl = 'http://localhost:3000/gridData';
+  private apiUrl = 'http://localhost:3000/gridData';  // Your JSON server API
 
   constructor(private http: HttpClient) {}
 
-  getRecords(): Observable<Record[]> {
-    return this.http.get<Record[]>(this.apiUrl);
+  // Fetch records
+  getRecords(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
   }
 
-  addRecord(record: Record): Observable<Record> {
-    return this.http.post<Record>(this.apiUrl, record);
+  // Update a record
+  updateRecord(record: any): Observable<any> {
+    console.log('Updating record with ID:', record.id); // Debugging log
+    console.log('Payload:', record); // Debugging log
+    return this.http.put<any>(`${this.apiUrl}/${record.id}`, record);
   }
 
-  updateRecord(record: Record): Observable<Record> {
-    return this.http.put<Record>(`${this.apiUrl}/${record.id}`, record);
-  }
-
-  deleteRecord(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  // Delete a record
+  deleteRecord(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }
