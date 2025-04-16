@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { GridModule } from '@progress/kendo-angular-grid';
-import { sampleProducts } from '../product';
+// import { sampleProducts } from '../product';
 import { ButtonModule } from '@progress/kendo-angular-buttons';
 import { KENDO_TABSTRIP } from '@progress/kendo-angular-layout';
 import { LeadmanagementComponent } from "../components/leadmanagement/leadmanagement.component";
@@ -11,7 +11,7 @@ import { LeadmanagementComponent } from "../components/leadmanagement/leadmanage
   styleUrl: './ui.component.css'
 })
 export class UiComponent {
-  public gridData = sampleProducts;
+  // public gridData = sampleProducts;
   
   
 }

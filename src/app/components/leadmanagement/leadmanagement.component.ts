@@ -1,16 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { process } from '@progress/kendo-data-query';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
-import { DataBindingDirective, GridDataResult, GridModule } from '@progress/kendo-angular-grid';
+import { DataBindingDirective, GridComponent, GridDataResult, GridModule } from '@progress/kendo-angular-grid';
 import { KENDO_DROPDOWNLIST } from '@progress/kendo-angular-dropdowns';
 import { KENDO_RATING, KENDO_SWITCH, KENDO_TEXTBOX } from '@progress/kendo-angular-inputs';
 import { LabelModule } from '@progress/kendo-angular-label';
 import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
 import { CommonModule } from '@angular/common';
-import { gridData } from '../../employees';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { PageChangeEvent } from '@progress/kendo-angular-pager';
 import { KENDO_BUTTON, KENDO_SPLITBUTTON } from '@progress/kendo-angular-buttons';
 import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
+import { RecordService } from '../../services/lead.service';
 
 @Component({
   selector: 'app-leadmanagement',
@@ -30,108 +32,145 @@ import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
     KENDO_BUTTON,
     KENDO_SPLITBUTTON,
     KENDO_DIALOG,
-    LabelModule
+    LabelModule,
   ],
   templateUrl: './leadmanagement.component.html',
-  styleUrl: './leadmanagement.component.css'
+  styleUrls: ['./leadmanagement.component.css']
 })
 export class LeadmanagementComponent implements OnInit {
+  @ViewChild('excelExport', { static: false }) excelExport: any;
+
+  public listItems: string[] = ['All Leads', 'Pending', 'Completed'];
+  public searchPreference: string[] = ['Today\'s Leads', 'Saved 1', 'Custom 2'];
   public gridItems: any[] = [];
-  public formGroup!: FormGroup;
-  public editedRowIndex: number | null = null;
-  public originalData: any[] = [];
-  public gridView!: GridDataResult;
-  @ViewChild('excelExport', { static: false }) excelExport!: ExcelExportComponent;
-
-  public exportToExcel(): void {
-    this.excelExport.save();
-  }
-
-  @ViewChild(DataBindingDirective) dataBinding!: DataBindingDirective;
-
-  public listItems: Array<string> = ['Lead 1', 'Lead 2', 'Lead 3'];
-  public searchPreference: Array<string> = ['Search 1', 'Search 2', 'Search 3'];
-  public isNonIntl: boolean = false;
-
-  constructor(private fb: FormBuilder) { }
-  public pageSize = 7;
+  public gridView: GridDataResult = { data: [], total: 0 };
+  public pageSize = 10;
   public skip = 0;
+  public isNonIntl = false;
+  public formGroup!: FormGroup;
+  private editedRowIndex: number | null = null;
+  private apiUrl = 'http://localhost:3000/gridData';  // API URL for your db.json
 
+  constructor(private fb: FormBuilder, private http: HttpClient,public recordService:RecordService) {}
 
-  public pageChange(event: PageChangeEvent): void {
-    this.skip = event.skip;
-    this.loadItems();
+  ngOnInit(): void {
+    this.loadGridData();
   }
 
-  private loadItems(): void {
+  // Fetch data from db.json
+  private loadGridData(): void {
+    this.http.get<any[]>(this.apiUrl).subscribe({
+      next: (data) => {
+        this.gridItems = data;
+        this.updateGridView();
+      },
+      error: (error) => {
+        console.error('Error loading data', error);
+      }
+    });    
+  }
+
+  // Update the gridView based on skip and page size
+  private updateGridView(): void {
     this.gridView = {
       data: this.gridItems.slice(this.skip, this.skip + this.pageSize),
       total: this.gridItems.length
     };
   }
-  ngOnInit(): void {
-    this.loadItems();
-    this.gridItems = [...gridData];       
-    this.originalData = [...gridData];    
+
+  // Pagination handler
+  public pageChange(event: PageChangeEvent): void {
+    this.skip = event.skip;
+    this.updateGridView();
   }
 
-  public onFilter(searchValue: string): void {
-    const lowerValue = searchValue.toLowerCase();
+  // Export to Excel functionality
+  public exportToExcel(): void {
+    this.excelExport.save();
+  }
 
-    this.gridItems = this.originalData.filter(item =>
-      Object.values(item).some(value =>
-        value != null && value.toString().toLowerCase().includes(lowerValue)
+  // Filter data based on search value
+  public onFilter(value: string): void {
+    const filtered = this.gridItems.filter(item =>
+      Object.values(item).some(val =>
+        String(val).toLowerCase().includes(value.toLowerCase())
       )
     );
+    this.gridView = { data: filtered.slice(0, this.pageSize), total: filtered.length };
   }
 
-  public createFormGroup(dataItem: any): FormGroup {
-    return this.fb.group({
+  // Edit row handler
+  public editHandler({ sender, rowIndex, dataItem }: any): void {
+    this.closeEditor(sender);
+
+    this.formGroup = this.fb.group({
+      RecordID: [dataItem.recordId],
       lastName: [dataItem.lastName, Validators.required],
       firstName: [dataItem.firstName, Validators.required],
-      email: [dataItem.email, Validators.required],
+      email: [dataItem.email, [Validators.required, Validators.email]],
       phoneType: [dataItem.phoneType],
       leadId: [dataItem.leadId],
       appointmentType: [dataItem.appointmentType],
       bookingAgency: [dataItem.bookingAgency],
       assignedDate: [dataItem.assignedDate],
       salesRep: [dataItem.salesRep],
-
+      coordinator: [dataItem.coordinator],
+      syncToMobile: [dataItem.syncToMobile],
+      createdSource: [dataItem.createdSource],
+      mobileSyncStatus: [dataItem.mobileSyncStatus],
+      effectiveDate: [dataItem.effectiveDate],
+      validThrough: [dataItem.validThrough],
     });
-  }
 
-  public editHandler({ sender, rowIndex, dataItem }: any): void {
-    this.closeEditor(sender);
-    this.formGroup = this.createFormGroup(dataItem);
     this.editedRowIndex = rowIndex;
     sender.editRow(rowIndex, this.formGroup);
   }
 
+  // Cancel editing
   public cancelHandler({ sender, rowIndex }: any): void {
-    sender.closeRow(rowIndex);
-    this.editedRowIndex = null;
+    this.closeEditor(sender);
   }
 
-  public saveHandler({ sender, rowIndex, formGroup, dataItem }: any): void {
+  // Save edited item to db.json and update UI
+  public saveHandler({ sender, rowIndex, dataItem, formGroup, isNew }: any): void {
     const updatedItem = formGroup.value;
-    this.gridItems[rowIndex + this.skip] = { ...dataItem, ...updatedItem };
-    this.gridItems = [...this.gridItems];
-    this.loadItems(); 
+
+    if (isNew) {
+      // For new items, add it to db.json and gridItems
+      this.http.post<any>(this.apiUrl, updatedItem).subscribe((newItem) => {
+        this.gridItems.push(newItem);
+        this.updateGridView();
+      }, error => {
+        console.error('Error saving new item', error);
+      });
+    } else {
+      // For existing items, update them in db.json and gridItems
+      this.http.put<any>(`${this.apiUrl}/${dataItem.id}`, updatedItem).subscribe(() => {
+        this.gridItems[rowIndex] = updatedItem;
+        this.updateGridView();
+      }, error => {
+        console.error('Error updating item', error);
+      });
+    }
+
     sender.closeRow(rowIndex);
   }
 
+  // Remove item from db.json and UI
   public removeHandler({ dataItem }: any): void {
-    const index = this.gridItems.indexOf(dataItem);
-    if (index >= 0) {
-      this.gridItems.splice(index, 1);
-      this.originalData.splice(index, 1);
-    }
+    this.recordService.deleteRecord(dataItem.id).subscribe(() => {
+      // Update the gridItems array by filtering out the removed item
+      this.gridItems = this.gridItems.filter(item => item.id !== dataItem.id);
+            this.updateGridView();
+    }, error => {
+      console.error('Error removing item', error);
+    });
   }
 
-  private closeEditor(grid: any): void {
-    if (this.editedRowIndex !== null) {
-      grid.closeRow(this.editedRowIndex);
-      this.editedRowIndex = null;
-    }
+  // Close the editor after saving or canceling
+  private closeEditor(grid: GridComponent): void {
+    grid.closeRow(this.editedRowIndex as number);
+    this.editedRowIndex = null;
+    this.formGroup = this.fb.group({});
   }
 }
