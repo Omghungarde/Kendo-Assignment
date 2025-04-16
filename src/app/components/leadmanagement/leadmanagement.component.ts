@@ -7,15 +7,10 @@ import { KENDO_RATING, KENDO_SWITCH, KENDO_TEXTBOX } from '@progress/kendo-angul
 import { LabelModule } from '@progress/kendo-angular-label';
 import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
 import { CommonModule } from '@angular/common';
-
 import { gridData } from '../../employees';
-import { images } from '../../images';
-import { products } from '../../product';
-import { Product } from '../../model';
 import { PageChangeEvent } from '@progress/kendo-angular-pager';
-import { aggregateBy, AggregateDescriptor, AggregateResult, process } from '@progress/kendo-data-query';
-import { Group } from '@progress/kendo-drawing';
 import { KENDO_BUTTON, KENDO_SPLITBUTTON } from '@progress/kendo-angular-buttons';
+import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
 
 @Component({
   selector: 'app-leadmanagement',
@@ -34,6 +29,7 @@ import { KENDO_BUTTON, KENDO_SPLITBUTTON } from '@progress/kendo-angular-buttons
     KENDO_RATING,
     KENDO_BUTTON,
     KENDO_SPLITBUTTON,
+    KENDO_DIALOG,
     LabelModule
   ],
   templateUrl: './leadmanagement.component.html',
@@ -75,8 +71,8 @@ export class LeadmanagementComponent implements OnInit {
   }
   ngOnInit(): void {
     this.loadItems();
-    this.gridItems = [...gridData];       // initialize display data
-    this.originalData = [...gridData];    // preserve original data for search
+    this.gridItems = [...gridData];       
+    this.originalData = [...gridData];    
   }
 
   public onFilter(searchValue: string): void {
@@ -120,7 +116,7 @@ export class LeadmanagementComponent implements OnInit {
     const updatedItem = formGroup.value;
     this.gridItems[rowIndex + this.skip] = { ...dataItem, ...updatedItem };
     this.gridItems = [...this.gridItems];
-    this.loadItems(); // update the view
+    this.loadItems(); 
     sender.closeRow(rowIndex);
   }
 

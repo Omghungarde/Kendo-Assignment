@@ -8,14 +8,9 @@
     <label class="board-checkbox">
       <input type="checkbox" /> Board view
     </label>
-
-    <!-- <button class="export-btn">
-      <i class="fas fa-download"></i> Export To Excel
-    </button> -->
     <button class="export-btn" kendoButton type="button" (click)="exportToExcel()">
       <i class="fas fa-download"></i> Export To Excel
     </button>
-    <!-- <button kendoButton (click)="exportToExcel()">Export to Excel</button> -->
     <kendo-excelexport
     #excelExport
     [data]="gridItems"
@@ -39,10 +34,7 @@
     <kendo-excelexport-column field="validThrough" title="Valid Through"></kendo-excelexport-column>
   
   </kendo-excelexport>
-  
-  <!-- Add Export Button -->
-  
-  
+
     <button class="create-btn">
       Create
     </button>
@@ -81,8 +73,6 @@
       </span>
     </div>
 
-
-
     <button class="create-btn-div">Clear Filters</button>
     <button class="create-btn-div">Bulk Edit</button>
     <button class="create-btn-div">Save Preference</button>
@@ -95,21 +85,15 @@
     <kendo-grid-checkbox-column [columnMenu]="false" [width]="50">
     </kendo-grid-checkbox-column>
 
-    <!-- Action Column Placeholder -->
     <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
       <ng-template kendoGridCellTemplate>
-        <!-- <span class="k-icon k-i-eye"></span>
-        <button kendoButton class="action_button" size="small"><i class="fas fa-eye"></i> Action</button> -->
         <kendo-splitbutton
           [data]="listItems"
-          class="action_button"
-          
-        >
+          class="action_button">       >
         <i class="fas fa-eye"></i> Action
         </kendo-splitbutton>
       </ng-template>
     </kendo-grid-column>
-
 
     <kendo-grid-column field="RecordID" title="Record Id" [width]="150"></kendo-grid-column>
     <kendo-grid-column field="lastName" title="Last Name" [width]="150"></kendo-grid-column>
@@ -124,7 +108,6 @@
     <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
     <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
 
-    <!-- Sync to Mobile -->
     <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
       <ng-template kendoGridCellTemplate let-dataItem>
         <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
@@ -132,8 +115,6 @@
     </kendo-grid-column>
 
     <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
-
-    <!-- Mobile Sync Status Placeholder -->
     <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
       <ng-template kendoGridCellTemplate>
         <span class="text-muted">N/A</span>
