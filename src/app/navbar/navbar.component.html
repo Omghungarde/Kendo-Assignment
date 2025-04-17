@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg" style="background-color: #ffffff;">
+<nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
       <!-- Left-aligned items -->
       <a class="navbar-brand text-white" href="#"></a>
@@ -13,6 +13,15 @@
         <ul class="navbar-nav align-items-center gap-2">
   
           <!-- Envelope Icon -->
+          <li class="nav-item">
+            <a class="nav-link p-0"(click)="toggleDarkMode()">
+              <div class="icon-btn">
+                <i class="fas fa-moon text-white"></i>
+              </div>
+            </a>
+          </li>
+
+
           <li class="nav-item">
             <a class="nav-link p-0" href="#">
               <div class="icon-btn">
@@ -50,9 +59,9 @@
           </li>
   
           <!-- Admin Profile -->
-          <li class="nav-item d-flex align-items-center gap-2 text-white">
+          <li class="nav-item d-flex align-items-center gap-2">
             <div class="avatar-circle">A</div>
-            <div class="d-flex flex-column lh-sm" style="color: black;">
+            <div class="d-flex flex-column lh-sm tect">
               <span class="fw-bold">admin</span>
               <small>Admin</small>
             </div>

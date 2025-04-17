@@ -1,0 +1,42 @@
+/* styles.css */
+body.dark-mode {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+  
+  /* You can style specific elements too */
+  body.dark-mode .navbar {
+    background-color: #1e1e1e;
+  }
+  body.dark-mode .icon-btn {
+    background-color: #1e1e1e;
+    border: 1px solid #e0e0e0;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  :root {
+    --tab-bg: #003366;
+    --tab-text: #f1f1f1;
+    --tab-active-bg: yellowgreen;
+    --tab-active-text: white;
+    --tab-hover-bg: #004080;
+    --tab-content-bg: #f9f9f9;
+    --tab-content-text: #222;
+  }
+  
+  body.dark-mode {
+    --tab-bg: #2c2c2c;
+    --tab-text: #e0e0e0;
+    --tab-active-bg: yellowgreen;     /* stays same */
+    --tab-active-text: white;
+    --tab-hover-bg: #444444;
+    --tab-content-bg: #1e1e1e;
+    --tab-content-text: #f1f1f1;
+  }
+  
