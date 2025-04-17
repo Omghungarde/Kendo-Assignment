@@ -95,7 +95,7 @@
     <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
 
     <!-- Custom Action Split Button -->
-    <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
+    <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="false" headerClass="actions-header">
       <ng-template kendoGridCellTemplate let-dataItem>
         <kendo-splitbutton *ngIf="!isItemInEditMode(dataItem)" [data]="listItems" class="action_button">
           <i class="fas fa-eye"></i> Action
@@ -157,7 +157,7 @@
       [width]="150"></kendo-grid-column>
 
     <!-- Command Buttons Column -->
-    <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="true">
+    <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="false">
       <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
         <ng-container *ngIf="!isItemInEditMode(dataItem)">
 

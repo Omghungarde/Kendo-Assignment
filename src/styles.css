@@ -39,4 +39,194 @@ body.dark-mode {
     --tab-content-bg: #1e1e1e;
     --tab-content-text: #f1f1f1;
   }
+
+  
+/* 🌙 DARK MODE THEME - KENDO GRID & CONTROLS */
+
+.dark-mode {
+    background-color: #181a1b;
+    color: #eaeaea;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  /* Kendo Grid Main Container */
+  .dark-mode .k-grid {
+    background-color: #212325;
+    color: #eaeaea;
+    border-color: #2c2e31;
+  }
+  
+  /* Grid Header */
+  .dark-mode .k-grid-header {
+    background-color: #1f2123;
+    color: #f5f5f5;
+    border-bottom: 1px solid #333;
+  }
+  
+  .dark-mode .k-grid-header th {
+    background-color: #1f2123;
+    color: #f5f5f5;
+    border-color: #333;
+    font-weight: 600;
+  }
+  
+  /* Grid Body Rows */
+  .dark-mode .k-grid-content tr {
+    background-color: #242628;
+    border-bottom: 1px solid #2e2f31;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .dark-mode .k-grid-content tr:hover {
+    background-color: #2e3033;
+  }
+  
+  /* Grid Cells */
+  .dark-mode .k-grid td {
+    color: #eaeaea;
+    border-color: #2e2f31;
+  }
+  
+  /* No Data Cell */
+  .dark-mode .k-grid-norecords {
+    background-color: #212325;
+    color: #aaa;
+    border-top: 1px solid #2e2f31;
+  }
+  
+  /* Editable Inputs in Cells */
+  .dark-mode .k-textbox,
+  .dark-mode input.k-input,
+  .dark-mode input[type="text"],
+  .dark-mode input[type="number"],
+  .dark-mode input[type="date"],
+  .dark-mode .k-input,
+  .dark-mode .k-input-inner {
+    background-color: #2d2f32;
+    color: #fff;
+    border: 1px solid #444;
+  }
+  
+  .dark-mode input::placeholder {
+    color: #aaa;
+  }
+  
+  /* Dropdowns & Selects */
+  .dark-mode .k-dropdown,
+  .dark-mode .k-dropdown-wrap,
+  .dark-mode .k-select {
+    background-color: #2d2f32;
+    color: #fff;
+    border: 1px solid #444;
+  }
+  
+  /* Buttons */
+  .dark-mode .k-button {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+  }
+  
+  .dark-mode .k-button.k-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+  }
+  
+  .dark-mode .k-button.k-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  .dark-mode .k-button.k-success {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+  
+  .dark-mode .k-button:hover {
+    filter: brightness(1.15);
+  }
+  
+  /* Export Button */
+  .dark-mode .export-btn {
+    background-color: #292b2f;
+    color: #fff;
+    border: 1px solid #555;
+  }
+  
+  /* Paging, Sorting, Icons */
+  .dark-mode .k-pager,
+  .dark-mode .k-grid-toolbar,
+  .dark-mode .k-icon,
+  .dark-mode .k-grid-footer,
+  .dark-mode .k-grid-header .k-icon {
+    color: #aaa;
+  }
+  
+  /* Checkbox Styling */
+  .dark-mode input[type="checkbox"] {
+    accent-color: #4caf50;
+  }
+  
+  /* Text Muted / N/A etc. */
+  .dark-mode .text-muted,
+  .dark-mode .k-grid td.text-muted {
+    color: #999 !important;
+  }
+  
+  /* Scrollbar Styling */
+  .dark-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .dark-mode ::-webkit-scrollbar-track {
+    background: #1f2123;
+  }
+  .dark-mode ::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+  }
+  
+  /* Highlight on edit row */
+  .dark-mode .k-grid .k-grid-edit-row {
+    background-color: #2f3135 !important;
+    border: 1px solid #555;
+  }
+  /* Fix alternating white background in dark mode Kendo Grid */
+.dark-mode .k-grid-content tr:nth-child(even) {
+    background-color: #242628 !important;
+  }
+  
+  .dark-mode .k-grid-content tr:nth-child(odd) {
+    background-color: #202224 !important;
+  }
+  /* DARK MODE STYLING FOR KENDO GRID PAGER */
+body.dark-mode .k-pager-wrap {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    border-top: 1px solid var(--dark-border);
+  }
+  
+  body.dark-mode .k-pager-wrap .k-link,
+  body.dark-mode .k-pager-wrap .k-label,
+  body.dark-mode .k-pager-wrap .k-dropdown,
+  body.dark-mode .k-pager-wrap .k-icon {
+    color: var(--dark-text);
+  }
+  
+  body.dark-mode .k-pager-wrap .k-link:hover {
+    background-color: var(--dark-hover);
+    color: var(--dark-text);
+  }
+  
+  body.dark-mode .k-pager-wrap .k-link.k-state-selected {
+    background-color: var(--dark-accent);
+    color: white;
+  }
+  
+  /* Optional: dropdown inside pager */
+  body.dark-mode .k-pager-wrap .k-dropdownlist {
+    background-color: var(--dark-input-bg);
+    color: var(--dark-text);
+  }
   
