@@ -76,65 +76,6 @@
     <button class="create-btn-div">Save Preference</button>
   </div>
 
-
-  <!-- <kendo-grid [data]="gridItems" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
-    [navigable]="true" [height]="450" (pageChange)="pageChange($event)" (edit)="editHandler($event)"
-    (cancel)="cancelHandler($event)" (save)="saveHandler($event)" (remove)="removeHandler($event)" [editable]="'inline'">
-    <kendo-grid-checkbox-column [columnMenu]="false" [width]="50">
-    </kendo-grid-checkbox-column>
-
-    <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
-      <ng-template kendoGridCellTemplate>
-        <kendo-splitbutton
-          [data]="listItems"
-          class="action_button">       >
-        <i class="fas fa-eye"></i> Action
-        </kendo-splitbutton>
-      </ng-template>
-    </kendo-grid-column>
-
-    <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="lastName" title="Last Name"[editable]="true" [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="firstName" title="First Name" [editable]="true"[width]="150"></kendo-grid-column>
-    <kendo-grid-column field="email" title="Email"[editable]="true" [width]="200"></kendo-grid-column>
-    <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
-    <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="appointmentType" title="Appointment Type" [width]="180"></kendo-grid-column>
-    <kendo-grid-column field="bookingAgency" title="Booking Agency" [width]="180"></kendo-grid-column>
-    <kendo-grid-column field="assignedDate" title="Assigned Date" filter="date" editor="date"
-      [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
-
-    <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
-      </ng-template>
-    </kendo-grid-column>
-
-    <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
-      <ng-template kendoGridCellTemplate>
-        <span class="text-muted">N/A</span>
-      </ng-template>
-    </kendo-grid-column>
-
-    <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date"
-      [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date"
-      [width]="150"></kendo-grid-column>
-
-    <kendo-grid-command-column title="ActionsButtons" [width]="220" [sticky]="true">
-      <ng-template kendoGridCellTemplate let-isNew="isNew">
-        <button kendoGridEditCommand class="k-button k-primary">Edit</button>
-        <button kendoGridRemoveCommand class="k-button k-danger">Remove</button>
-        <button kendoGridSaveCommand class="k-button k-success" [disabled]="formGroup.invalid">Save</button>
-        <button kendoGridCancelCommand class="k-button">Cancel</button>
-      </ng-template>
-    </kendo-grid-command-column>
-
-  </kendo-grid> -->
-
   <kendo-grid
   [data]="gridItems"
   [pageSize]="pageSize"
