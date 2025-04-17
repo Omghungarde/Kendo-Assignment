@@ -35,7 +35,8 @@
   
   </kendo-excelexport>
 
-  <button class="create-btn" kendoButton>Create</button>
+  <button class="create-btn" kendoButton (click)="addNewLead()">Create</button>
+
   </div>
 </div>
 
@@ -156,14 +157,23 @@
   <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="true">
     <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
       <ng-container *ngIf="!isItemInEditMode(dataItem)">
-        <button class="k-button k-primary" (click)="editHandler({ sender: grid, rowIndex: rowIndex, dataItem: dataItem })">Edit</button>
-        <button class="k-button k-danger" (click)="removeHandler({ dataItem: dataItem })">Remove</button>
+        <button class="k-button k-primary" (click)="editHandler({ sender: grid, rowIndex: rowIndex, dataItem: dataItem })">
+          Edit
+        </button>
+        <button class="k-button k-danger" (click)="removeHandler({ dataItem: dataItem })">
+          Remove
+        </button>
       </ng-container>
       <ng-container *ngIf="isItemInEditMode(dataItem)">
-        <button class="k-button k-success" (click)="saveHandler({ sender: grid, rowIndex: rowIndex, formGroup: formGroup })" [disabled]="!formGroup.valid">Save</button>
-        <button class="k-button" (click)="cancelHandler({ sender: grid, rowIndex: rowIndex })">Cancel</button>
+        <button class="k-button k-success" (click)="saveHandler({ sender: grid, rowIndex: rowIndex, formGroup: formGroup })" [disabled]="!formGroup.valid">
+          Save
+        </button>
+        <button class="k-button" (click)="cancelHandler({ sender: grid, rowIndex: rowIndex })">
+          Cancel
+        </button>
       </ng-container>
     </ng-template>
   </kendo-grid-column>
+  
 
 </kendo-grid>

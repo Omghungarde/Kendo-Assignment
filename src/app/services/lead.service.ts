@@ -14,6 +14,9 @@ export class RecordService {
   getRecords(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
+  addRecord(record: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, record);
+  }
 
   // Update a record
   updateRecord(record: any): Observable<any> {

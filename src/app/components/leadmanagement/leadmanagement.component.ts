@@ -71,12 +71,19 @@ export class LeadmanagementComponent implements OnInit {
     });
   }
 
+  // private updateGridView(): void {
+  //   this.gridView = {
+  //     data: this.gridItems.slice(this.skip, this.skip + this.pageSize),
+  //     total: this.gridItems.length
+  //   };
+  // }
   private updateGridView(): void {
     this.gridView = {
-      data: this.gridItems.slice(this.skip, this.skip + this.pageSize),
+      data: this.gridItems,
       total: this.gridItems.length
     };
   }
+  
 
   public pageChange(event: PageChangeEvent): void {
     this.skip = event.skip;
@@ -100,8 +107,9 @@ export class LeadmanagementComponent implements OnInit {
   }
 
   public editHandler({ sender, rowIndex, dataItem }: any): void {
-    this.closeEditor(sender);
-
+    this.closeEditor(sender); // Ensure only one record is edited at a time
+  
+    // Create the reactive form with validation for fields like email and required names
     this.formGroup = this.fb.group({
       id: [dataItem.id],
       recordId: [dataItem.recordId],
@@ -121,10 +129,11 @@ export class LeadmanagementComponent implements OnInit {
       effectiveDate: [dataItem.effectiveDate],
       validThrough: [dataItem.validThrough],
     });
-
+  
     this.editedRowIndex = rowIndex;
     sender.editRow(rowIndex, this.formGroup);
   }
+  
 
   public cancelHandler({ sender }: any): void {
     this.closeEditor(sender);
@@ -132,44 +141,84 @@ export class LeadmanagementComponent implements OnInit {
 
   public saveHandler({ sender, rowIndex, formGroup }: any): void {
     const updatedRecord = formGroup.value;
-
-    console.log('Save button clicked. FormGroup validity:', formGroup.valid); // Debugging log
-    console.log('Updated record:', updatedRecord); // Debugging log
-
+  
     if (!updatedRecord.id) {
       console.error('Missing ID. Cannot update.');
-      alert('Error: Missing ID. Please try again.'); // Notify the user
+      alert('Error: Missing ID. Please try again.');
       return;
     }
-
+  
+    // Call service to update data in the server
     this.recordService.updateRecord(updatedRecord).subscribe({
       next: () => {
-        console.log('Record updated successfully:', updatedRecord); // Debugging log
+        // Update the local grid items to reflect changes
         const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
         if (index !== -1) {
           this.gridItems[index] = updatedRecord;
         }
         this.updateGridView();
-        this.closeEditor(sender); // Close the editable form
+        this.closeEditor(sender);
       },
       error: (err) => {
         console.error('Update error:', err);
-        alert('Error updating the record. Please try again.'); // Notify the user
+        alert('Error updating the record. Please try again.');
       }
     });
   }
-
+  
   public removeHandler({ dataItem }: any): void {
     const id = dataItem.id;
-
+  
+    // Call service to delete the record from the server
     this.recordService.deleteRecord(id).subscribe({
       next: () => {
+        // Remove the record from the local grid view
         this.gridItems = this.gridItems.filter(item => item.id !== id);
         this.updateGridView();
       },
       error: (err) => console.error('Delete error:', err)
     });
   }
+  public addNewLead(): void {
+    const newLead = {
+      recordId:  this.generateNextRecordId(),  // or leave this blank if JSON server generates it
+      lastName: '',
+      firstName: '',
+      email: '',
+      phoneType: '',
+      leadId: '',
+      appointmentType: '',
+      bookingAgency: '',
+      assignedDate: new Date(),
+      salesRep: '',
+      coordinator: '',
+      syncToMobile: false,
+      createdSource: '',
+      mobileSyncStatus: 'N/A',
+      effectiveDate: new Date(),
+      validThrough: new Date()
+    };
+  
+    this.recordService.addRecord(newLead).subscribe({
+      next: (createdRecord) => {
+        this.gridItems.unshift(createdRecord);
+        this.updateGridView();
+  
+        // Optional: Open the newly added record in edit mode
+        this.editHandler({
+          sender: this.grid,
+          rowIndex: 0,
+          dataItem: createdRecord
+        });
+      },
+      error: (err) => {
+        console.error('Failed to create new record:', err);
+        alert('Error creating record. Try again.');
+      }
+    });
+  }
+  
+  
 
   private closeEditor(grid: GridComponent): void {
     if (this.editedRowIndex !== null) {
@@ -186,6 +235,21 @@ export class LeadmanagementComponent implements OnInit {
   // Function to handle toggling between Intl and Non-Intl
   toggleNonIntl(value: boolean): void {
     this.isNonIntl = value;
+  }
+  private generateNextRecordId(): string {
+    if (!this.gridItems.length) {
+      return 'R001'; // start with R001 if no records
+    }
+  
+    const existingIds = this.gridItems
+      .map(item => item.recordId)
+      .filter(id => /^R\d{3}$/.test(id)) // only match Rxxx format
+      .map(id => parseInt(id.substring(1))) // convert to number
+  
+    const maxId = Math.max(...existingIds);
+    const nextId = maxId + 1;
+  
+    return 'R' + nextId.toString().padStart(3, '0'); // zero-padded
   }
   
 }
