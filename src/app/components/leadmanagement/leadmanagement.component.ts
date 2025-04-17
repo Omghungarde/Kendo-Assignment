@@ -189,14 +189,14 @@ export class LeadmanagementComponent implements OnInit {
       leadId: '',
       appointmentType: '',
       bookingAgency: '',
-      assignedDate: new Date(),
+      assignedDate: '',
       salesRep: '',
       coordinator: '',
       syncToMobile: false,
       createdSource: '',
       mobileSyncStatus: 'N/A',
-      effectiveDate: new Date(),
-      validThrough: new Date()
+      effectiveDate: '',
+      validThrough: ''
     };
   
     this.recordService.addRecord(newLead).subscribe({

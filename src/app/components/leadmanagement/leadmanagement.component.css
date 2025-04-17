@@ -344,3 +344,35 @@
 ::ng-deep .k-column-title{
   color: white;
 }
+::ng-deep .k-button .k-primary{
+  background-color: blueviolet;
+}
+
+.k-button {
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.k-button.k-primary {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  gap: 0.4rem;
+}
+
+.k-button.k-danger {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+}
+
+.k-button.k-success {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+}
+
+.k-button:hover {
+  opacity: 0.9;
+}
