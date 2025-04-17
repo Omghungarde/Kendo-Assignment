@@ -11,6 +11,7 @@ import { LabelModule } from '@progress/kendo-angular-label';
 import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
 import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
 import { RecordService } from '../../services/lead.service';
+import { orderBy, SortDescriptor } from '@progress/kendo-data-query';
 
 @Component({
   selector: 'app-leadmanagement',
@@ -60,7 +61,12 @@ export class LeadmanagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadGridData();
   }
+  public sort: SortDescriptor[] = [];
 
+  public onSortChange(sort: SortDescriptor[]): void {
+    this.sort = sort;
+    this.gridItems = orderBy(this.gridItems, sort);
+  }
   private loadGridData(): void {
     this.recordService.getRecords().subscribe({
       next: (data) => {

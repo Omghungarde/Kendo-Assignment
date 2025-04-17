@@ -84,9 +84,16 @@
   [pageable]="true"
   [sortable]="true"
   [navigable]="true"
+  [reorderable]="true"
+  [resizable]="true"
+  [columnMenu]="true"
   [height]="450"
   (pageChange)="pageChange($event)"
+  [kendoGridBinding]="gridItems"
+  [sort]="sort"
+  (sortChange)="onSortChange($event)"
   [editable]="'inline'">
+
 
   <!-- Checkbox Column -->
   <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
@@ -106,21 +113,21 @@
   <!-- Editable Fields -->
   <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
 
-  <kendo-grid-column field="lastName" title="Last Name" [width]="150">
+  <kendo-grid-column field="lastName" title="Last Name" [width]="150" [columnMenu]="true" [sortable]="true">
     <ng-template kendoGridCellTemplate let-dataItem>
       <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.lastName }}</span>
       <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.lastName" class="k-textbox" />
     </ng-template>
   </kendo-grid-column>
 
-  <kendo-grid-column field="firstName" title="First Name" [width]="150">
+  <kendo-grid-column field="firstName" title="First Name" [width]="150" [columnMenu]="true" [sortable]="true">
     <ng-template kendoGridCellTemplate let-dataItem>
       <span *ngIf="!isItemInEditMode(dataItem)"> {{ dataItem.firstName }} </span>
       <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.firstName" class="k-textbox" />
     </ng-template>
   </kendo-grid-column>
 
-  <kendo-grid-column field="email" title="Email" [width]="200">
+  <kendo-grid-column field="email" title="Email" [width]="200" [columnMenu]="true" [sortable]="true">
     <ng-template kendoGridCellTemplate let-dataItem>
       <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.email }}</span>
       <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.email" class="k-textbox" />

@@ -376,3 +376,7 @@
 .k-button:hover {
   opacity: 0.9;
 }
+::ng-serve .k-grid .k-grid-header .k-cell-inner > .k-link > .k-sort-icon .k-icon {
+ 
+  color: red;
+}
