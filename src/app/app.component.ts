@@ -9,7 +9,7 @@ import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, UiComponent, NavbarComponent,KENDO_DIALOG, KENDO_BUTTONS, KENDO_INPUTS, FormsModule],
+  imports: [RouterOutlet,KENDO_DIALOG, KENDO_BUTTONS, KENDO_INPUTS, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
