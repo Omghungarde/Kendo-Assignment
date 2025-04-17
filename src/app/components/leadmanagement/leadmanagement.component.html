@@ -11,31 +11,28 @@
     <button class="export-btn" kendoButton type="button" (click)="exportToExcel()">
       <i class="fas fa-download"></i> Export To Excel
     </button>
-    <kendo-excelexport
-    #excelExport
-    [data]="gridItems"
-    fileName="LeadManagementData.xlsx">
+    <kendo-excelexport #excelExport [data]="gridItems" fileName="LeadManagementData.xlsx">
 
-    <kendo-excelexport-column field="recordId" title="Record Id"></kendo-excelexport-column>
-    <kendo-excelexport-column field="lastName" title="Last Name"></kendo-excelexport-column>
-    <kendo-excelexport-column field="firstName" title="First Name"></kendo-excelexport-column>
-    <kendo-excelexport-column field="email" title="Email"></kendo-excelexport-column>
-    <kendo-excelexport-column field="phoneType" title="Primary Phone Type"></kendo-excelexport-column>
-    <kendo-excelexport-column field="leadId" title="LMP Lead ID"></kendo-excelexport-column>
-    <kendo-excelexport-column field="appointmentType" title="Appointment Type"></kendo-excelexport-column>
-    <kendo-excelexport-column field="bookingAgency" title="Booking Agency"></kendo-excelexport-column>
-    <kendo-excelexport-column field="assignedDate" title="Assigned Date"></kendo-excelexport-column>
-    <kendo-excelexport-column field="salesRep" title="Sales Rep"></kendo-excelexport-column>
-    <kendo-excelexport-column field="coordinator" title="Coordinator"></kendo-excelexport-column>
-    <kendo-excelexport-column field="syncToMobile" title="Sync to Mobile"></kendo-excelexport-column>
-    <kendo-excelexport-column field="createdSource" title="Created Source"></kendo-excelexport-column>
-    <kendo-excelexport-column field="mobileSyncStatus" title="Mobile Sync Status"></kendo-excelexport-column>
-    <kendo-excelexport-column field="effectiveDate" title="Effective Date"></kendo-excelexport-column>
-    <kendo-excelexport-column field="validThrough" title="Valid Through"></kendo-excelexport-column>
+      <kendo-excelexport-column field="recordId" title="Record Id"></kendo-excelexport-column>
+      <kendo-excelexport-column field="lastName" title="Last Name"></kendo-excelexport-column>
+      <kendo-excelexport-column field="firstName" title="First Name"></kendo-excelexport-column>
+      <kendo-excelexport-column field="email" title="Email"></kendo-excelexport-column>
+      <kendo-excelexport-column field="phoneType" title="Primary Phone Type"></kendo-excelexport-column>
+      <kendo-excelexport-column field="leadId" title="LMP Lead ID"></kendo-excelexport-column>
+      <kendo-excelexport-column field="appointmentType" title="Appointment Type"></kendo-excelexport-column>
+      <kendo-excelexport-column field="bookingAgency" title="Booking Agency"></kendo-excelexport-column>
+      <kendo-excelexport-column field="assignedDate" title="Assigned Date"></kendo-excelexport-column>
+      <kendo-excelexport-column field="salesRep" title="Sales Rep"></kendo-excelexport-column>
+      <kendo-excelexport-column field="coordinator" title="Coordinator"></kendo-excelexport-column>
+      <kendo-excelexport-column field="syncToMobile" title="Sync to Mobile"></kendo-excelexport-column>
+      <kendo-excelexport-column field="createdSource" title="Created Source"></kendo-excelexport-column>
+      <kendo-excelexport-column field="mobileSyncStatus" title="Mobile Sync Status"></kendo-excelexport-column>
+      <kendo-excelexport-column field="effectiveDate" title="Effective Date"></kendo-excelexport-column>
+      <kendo-excelexport-column field="validThrough" title="Valid Through"></kendo-excelexport-column>
 
-  </kendo-excelexport>
+    </kendo-excelexport>
 
-  <button class="create-btn" kendoButton (click)="addNewLead()">Create</button>
+    <button class="create-btn" kendoButton (click)="addNewLead()">Create</button>
 
   </div>
 </div>
@@ -53,6 +50,19 @@
     </kendo-label>
 
     <div class="search-group">
+      <kendo-textbox
+        [style.width.px]="250"
+        placeholder="Search in all columns..."
+        (valueChange)="onFilter($event)">
+      </kendo-textbox>
+    </div>
+    <div class="searchbtn">
+      <button class="search-btn" (click)="onFilter(searchText)">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <!-- <div class="search-group">
       <kendo-textbox [style.width.px]="165" placeholder="Search in all columns..."
         (valueChange)="onFilter($event)"></kendo-textbox>
     </div>
@@ -61,7 +71,7 @@
       <button class="search-btn">
         <i class="fas fa-search"></i>
       </button>
-    </div>
+    </div> -->
 
     <div class="custom-pill-toggle">
       <span class="pill-option" [class.active]="!isNonIntl" (click)="isNonIntl = false">
@@ -77,104 +87,100 @@
     <button class="create-btn-div">Save Preference</button>
   </div>
 
-  <kendo-grid
-  [data]="gridItems"
-  [pageSize]="pageSize"
-  [skip]="skip"
-  [pageable]="true"
-  [sortable]="true"
-  [navigable]="true"
-  [height]="450"
-  (pageChange)="pageChange($event)"
-  [editable]="'inline'">
+  <kendo-grid [data]="gridView.data" [pageSize]="pageSize" [skip]="skip" [pageable]="true" [sortable]="true"
+    [navigable]="true" [height]="450" (pageChange)="pageChange($event)" [editable]="'inline'">
 
-  <!-- Checkbox Column -->
-  <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
+    <!-- Checkbox Column -->
+    <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
 
-  <!-- Custom Action Split Button -->
-  <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
-    <ng-template kendoGridCellTemplate let-dataItem>
-      <kendo-splitbutton
-        *ngIf="!isItemInEditMode(dataItem)"
-        [data]="listItems"
-        class="action_button">
-        <i class="fas fa-eye"></i> Action
-      </kendo-splitbutton>
-    </ng-template>
-  </kendo-grid-column>
+    <!-- Custom Action Split Button -->
+    <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <kendo-splitbutton *ngIf="!isItemInEditMode(dataItem)" [data]="listItems" class="action_button">
+          <i class="fas fa-eye"></i> Action
+        </kendo-splitbutton>
+      </ng-template>
+    </kendo-grid-column>
 
-  <!-- Editable Fields -->
-  <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
+    <!-- Editable Fields -->
+    <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
 
-  <kendo-grid-column field="lastName" title="Last Name" [width]="150">
-    <ng-template kendoGridCellTemplate let-dataItem>
-      <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.lastName }}</span>
-      <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.lastName" class="k-textbox" />
-    </ng-template>
-  </kendo-grid-column>
+    <kendo-grid-column field="lastName" title="Last Name" [width]="150">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.lastName }}</span>
+        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.lastName" class="k-textbox" />
+      </ng-template>
+    </kendo-grid-column>
 
-  <kendo-grid-column field="firstName" title="First Name" [width]="150">
-    <ng-template kendoGridCellTemplate let-dataItem>
-      <span *ngIf="!isItemInEditMode(dataItem)"> {{ dataItem.firstName }} </span>
-      <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.firstName" class="k-textbox" />
-    </ng-template>
-  </kendo-grid-column>
+    <kendo-grid-column field="firstName" title="First Name" [width]="150">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span *ngIf="!isItemInEditMode(dataItem)"> {{ dataItem.firstName }} </span>
+        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.firstName" class="k-textbox" />
+      </ng-template>
+    </kendo-grid-column>
 
-  <kendo-grid-column field="email" title="Email" [width]="200">
-    <ng-template kendoGridCellTemplate let-dataItem>
-      <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.email }}</span>
-      <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.email" class="k-textbox" />
-    </ng-template>
-  </kendo-grid-column>
+    <kendo-grid-column field="email" title="Email" [width]="200">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.email }}</span>
+        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.email" class="k-textbox" />
+      </ng-template>
+    </kendo-grid-column>
 
-  <!-- Non-editable Fields -->
-  <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
-  <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="appointmentType" title="Appointment Type" [width]="180"></kendo-grid-column>
-  <kendo-grid-column field="bookingAgency" title="Booking Agency" [width]="180"></kendo-grid-column>
-  <kendo-grid-column field="assignedDate" title="Assigned Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
+    <!-- Non-editable Fields -->
+    <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
+    <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
+    <kendo-grid-column field="appointmentType" title="Appointment Type" [width]="180"></kendo-grid-column>
+    <kendo-grid-column field="bookingAgency" title="Booking Agency" [width]="180"></kendo-grid-column>
+    <kendo-grid-column field="assignedDate" title="Assigned Date" filter="date" editor="date"
+      [width]="150"></kendo-grid-column>
+    <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
+    <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
 
-  <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
-    <ng-template kendoGridCellTemplate let-dataItem>
-      <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
-    </ng-template>
-  </kendo-grid-column>
+    <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
+      </ng-template>
+    </kendo-grid-column>
 
-  <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
+    <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
 
-  <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
-    <ng-template kendoGridCellTemplate>
-      <span class="text-muted">N/A</span>
-    </ng-template>
-  </kendo-grid-column>
+    <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
+      <ng-template kendoGridCellTemplate>
+        <span class="text-muted">N/A</span>
+      </ng-template>
+    </kendo-grid-column>
 
-  <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date" [width]="150"></kendo-grid-column>
+    <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date"
+      [width]="150"></kendo-grid-column>
+    <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date"
+      [width]="150"></kendo-grid-column>
 
-  <!-- Command Buttons Column -->
-  <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="true">
-    <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
-      <ng-container *ngIf="!isItemInEditMode(dataItem)">
-        
-        <button class="k-button k-primary" (click)="editHandler({ sender: grid, rowIndex: rowIndex, dataItem: dataItem })">
-          Edit
-        </button>
-        <button class="k-button k-danger" (click)="removeHandler({ dataItem: dataItem })">
-          Remove
-        </button>
-      </ng-container>
-      <ng-container *ngIf="isItemInEditMode(dataItem)">
-        <button class="k-button k-success" (click)="saveHandler({ sender: grid, rowIndex: rowIndex, formGroup: formGroup })" [disabled]="!formGroup.valid">
-          Save
-        </button>
-        <button class="k-button" (click)="cancelHandler({ sender: grid, rowIndex: rowIndex })">
-          Cancel
-        </button>
-      </ng-container>
-    </ng-template>
-  </kendo-grid-column>
-  
+    <!-- Command Buttons Column -->
+    <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="true">
+      <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+        <ng-container *ngIf="!isItemInEditMode(dataItem)">
 
-</kendo-grid>
+          <button class="k-button k-primary"
+            (click)="editHandler({ sender: grid, rowIndex: rowIndex, dataItem: dataItem })">
+            Edit
+          </button>
+          <button class="k-button k-danger" (click)="removeHandler({ dataItem: dataItem })">
+            Remove
+          </button>
+        </ng-container>
+        <ng-container *ngIf="isItemInEditMode(dataItem)">
+          <button class="k-button k-success"
+            (click)="saveHandler({ sender: grid, rowIndex: rowIndex, formGroup: formGroup })"
+            [disabled]="!formGroup.valid">
+            Save
+          </button>
+          <button class="k-button" (click)="cancelHandler({ sender: grid, rowIndex: rowIndex })">
+            Cancel
+          </button>
+        </ng-container>
+      </ng-template>
+    </kendo-grid-column>
+
+
+  </kendo-grid>
+</div>

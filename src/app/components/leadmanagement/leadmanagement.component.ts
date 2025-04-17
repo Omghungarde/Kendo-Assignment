@@ -43,10 +43,12 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
  
    public listItems: string[] = ['All Leads', 'Pending', 'Completed'];
    public searchPreference: string[] = ['Today\'s Leads', 'Saved 1', 'Custom 2'];
+   public allData: any[] = []; // holds the full original data
    public gridItems: any[] = [];
    public gridView: GridDataResult = { data: [], total: 0 };
    public pageSize = 10;
    public skip = 0;
+   public searchText: string = '';
  
    public formGroup!: FormGroup;
    private editedRowIndex: number | null = null;
@@ -56,6 +58,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
      private http: HttpClient,
      public recordService: RecordService
    ) {}
+   
  
    ngOnInit(): void {
      this.loadGridData();
@@ -88,15 +91,21 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
      this.excelExport.save();
    }
  
-   public onFilter(value: string): void {
-     const filtered = this.gridItems.filter(item =>
-       Object.values(item).some(val =>
-         String(val).toLowerCase().includes(value.toLowerCase())
-       )
+   public onFilter(searchText: string): void {
+     console.log('Search text:', searchText);
+     const lowerCaseSearchText = searchText.toLowerCase();
+ 
+     const filteredData = this.gridItems.filter(item =>
+         Object.values(item).some(value =>
+             String(value).toLowerCase().includes(lowerCaseSearchText)
+         )
      );
+ 
+     console.log('Filtered data:', filteredData);
+ 
      this.gridView = {
-       data: filtered.slice(0, this.pageSize),
-       total: filtered.length
+         data: filteredData,
+         total: filteredData.length
      };
    }
  
