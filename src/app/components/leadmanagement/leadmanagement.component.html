@@ -51,13 +51,14 @@
 
     <div class="search-group">
       <kendo-textbox
+      #searchBox
         [style.width.px]="250"
         placeholder="Search in all columns..."
         (valueChange)="onFilter($event)">
       </kendo-textbox>
     </div>
     <div class="searchbtn">   
-      <button class="search-btn" (click)="onFilter(searchText)">
+      <button class="search-btn" (click)="onSearchClick(searchBox.value)">
         <i class="fas fa-search"></i>
       </button>
     </div>

@@ -91,23 +91,31 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
      this.excelExport.save();
    }
  
-   public onFilter(searchText: string): void {
-     console.log('Search text:', searchText);
-     const lowerCaseSearchText = searchText.toLowerCase();
- 
-     const filteredData = this.gridItems.filter(item =>
-         Object.values(item).some(value =>
-             String(value).toLowerCase().includes(lowerCaseSearchText)
-         )
-     );
- 
-     console.log('Filtered data:', filteredData);
- 
-     this.gridView = {
-         data: filteredData,
-         total: filteredData.length
-     };
-   }
+   public onFilter(value: string): void {
+    this.searchAndFilter(value);
+  }
+  
+  public onSearchClick(value: string): void {
+    this.searchAndFilter(value);
+  }
+  
+  private searchAndFilter(value: string): void {
+    const searchText = value.toLowerCase();
+    const filtered = this.gridItems.filter(item =>
+      Object.values(item).some(val =>
+        String(val).toLowerCase().includes(searchText)
+      )
+    );
+  
+    this.gridView = {
+      data: filtered.slice(0, this.pageSize),
+      total: filtered.length
+    };
+  
+    // If using pagination, reset to first page:
+    this.skip = 0;
+  }
+  
  
    public editHandler({ sender, rowIndex, dataItem }: any): void {
      this.closeEditor(sender);
