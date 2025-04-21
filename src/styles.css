@@ -229,4 +229,7 @@ body.dark-mode .k-pager-wrap {
     background-color: var(--dark-input-bg);
     color: var(--dark-text);
   }
-  
+  body.dark-mode .k-pager {
+    color: #fff9f9;
+    background: #1e1e1e;
+}

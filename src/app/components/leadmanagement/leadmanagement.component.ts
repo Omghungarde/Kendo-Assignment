@@ -4,7 +4,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
  import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
  import { CommonModule } from '@angular/common';
  import { HttpClient, HttpClientModule } from '@angular/common/http';
- import { KENDO_BUTTON, KENDO_SPLITBUTTON } from '@progress/kendo-angular-buttons';
+ import { Button, KENDO_BUTTON, KENDO_SPLITBUTTON } from '@progress/kendo-angular-buttons';
  import { KENDO_DROPDOWNLIST } from '@progress/kendo-angular-dropdowns';
  import { KENDO_RATING, KENDO_SWITCH, KENDO_TEXTBOX } from '@progress/kendo-angular-inputs';
  import { LabelModule } from '@progress/kendo-angular-label';
