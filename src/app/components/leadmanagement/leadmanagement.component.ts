@@ -11,6 +11,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
  import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
  import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
  import { RecordService } from '../../services/lead.service';
+import { orderBy } from '@progress/kendo-data-query';
  
  @Component({
    selector: 'app-leadmanagement',
@@ -49,7 +50,8 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
    public pageSize = 10;
    public skip = 0;
    public searchText: string = '';
- 
+   public sort: any[] = [];
+
    public formGroup!: FormGroup;
    private editedRowIndex: number | null = null;
  
@@ -74,13 +76,19 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
      });
    }
  
+  //  private updateGridView(): void {
+  //    this.gridView = {
+  //      data: this.gridItems,
+  //      total: this.gridItems.length
+  //    };
+  //  }
    private updateGridView(): void {
-     this.gridView = {
-       data: this.gridItems,
-       total: this.gridItems.length
-     };
-   }
-   
+    const sortedData = orderBy(this.gridItems, this.sort);
+    this.gridView = {
+      data: sortedData.slice(this.skip, this.skip + this.pageSize),
+      total: sortedData.length
+    };
+  }
  
    public pageChange(event: PageChangeEvent): void {
      this.skip = event.skip;
@@ -114,6 +122,10 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/c
   
     // If using pagination, reset to first page:
     this.skip = 0;
+  }
+  public sortChange(sort: any[]): void {
+    this.sort = sort;
+    this.updateGridView();
   }
   
  
