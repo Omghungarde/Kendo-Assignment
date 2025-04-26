@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/core';
  import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
- import { GridDataResult, GridComponent, PageChangeEvent, GridModule } from '@progress/kendo-angular-grid';
+ import { GridDataResult, GridComponent, PageChangeEvent, GridModule, CellClickEvent, CellCloseEvent, SaveEvent } from '@progress/kendo-angular-grid';
  import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
  import { CommonModule } from '@angular/common';
  import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -154,30 +154,30 @@ export class LeadmanagementComponent implements OnInit {
     this.closeEditor(sender);
   }
 
-  public saveHandler({ sender, rowIndex, formGroup }: any): void {
-    const updatedRecord = formGroup.value;
+  // public saveHandler({ sender, rowIndex, formGroup }: any): void {
+  //   const updatedRecord = formGroup.value;
 
-    if (!updatedRecord.id) {
-      console.error('Missing ID. Cannot update.');
-      alert('Error: Missing ID. Please try again.');
-      return;
-    }
+  //   if (!updatedRecord.id) {
+  //     console.error('Missing ID. Cannot update.');
+  //     alert('Error: Missing ID. Please try again.');
+  //     return;
+  //   }
 
-    this.recordService.updateRecord(updatedRecord).subscribe({
-      next: () => {
-        const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
-        if (index !== -1) {
-          this.gridItems[index] = updatedRecord;
-        }
-        this.updateGridView();
-        this.closeEditor(sender);
-      },
-      error: (err) => {
-        console.error('Update error:', err);
-        alert('Error updating the record. Please try again.');
-      }
-    });
-  }
+  //   this.recordService.updateRecord(updatedRecord).subscribe({
+  //     next: () => {
+  //       const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
+  //       if (index !== -1) {
+  //         this.gridItems[index] = updatedRecord;
+  //       }
+  //       this.updateGridView();
+  //       this.closeEditor(sender);
+  //     },
+  //     error: (err) => {
+  //       console.error('Update error:', err);
+  //       alert('Error updating the record. Please try again.');
+  //     }
+  //   });
+  // }
 
   public removeHandler({ dataItem }: any): void {
     const id = dataItem.id;
@@ -261,7 +261,6 @@ export class LeadmanagementComponent implements OnInit {
     return 'R' + nextId.toString().padStart(3, '0');
   }
 
-  // ✅ NEW LOGIC FOR INLINE DOUBLE CLICK EDIT
   public onRowDoubleClick(event: any): void {
     const clickedItem = event.dataItem;
     this.editedItem = { ...clickedItem };
@@ -276,6 +275,56 @@ export class LeadmanagementComponent implements OnInit {
       this.saveAndExitEdit();
     }
   }
+  // gridDoubleClick(event: MouseEvent): void {
+  //   console.log('Double click detected');
+  
+  //   let target = event.target as HTMLElement;
+  
+  //   // Walk up until you find a kendo-grid-cell
+  //   while (target && !target.classList.contains('kendo-grid-cell')) {
+  //     target = target.parentElement as HTMLElement;
+  //   }
+  
+  //   if (!target) {
+  //     console.log('No grid cell clicked');
+  //     return;
+  //   }
+  
+  //   // Now we know the cell is valid
+  //   const rowElement = target.closest('tr[kendoGridFocusable]') as HTMLElement;
+  //   if (!rowElement) {
+  //     console.log('No row element found');
+  //     return;
+  //   }
+  
+  //   const rowIndex = parseInt(rowElement.getAttribute('data-kendo-grid-item-index') || '-1', 10);
+  //   if (rowIndex === -1) {
+  //     console.log('Invalid row index');
+  //     return;
+  //   }
+  
+  //   const cellIndex = Array.from(rowElement.children).indexOf(target);
+  //   if (cellIndex === -1) {
+  //     console.log('Invalid cell index');
+  //     return;
+  //   }
+  
+  //   // Get the column based on the index
+  //   const column = this.grid.columns.toArray()[cellIndex];
+  
+  //   if (column) {
+  //     const columnWithField = column as any; // Replace 'any' with the specific type if known
+  //     console.log('Editing row:', rowIndex, 'column:', columnWithField.field);
+  //     this.grid.editCell(rowIndex, column);
+  //   } else {
+  //     console.log('No column found at index:', cellIndex);
+  //   }
+  // }
+  
+  
+  
+  
+  
 
   public onCellBlur(dataItem: any): void {
     setTimeout(() => {
@@ -295,6 +344,28 @@ export class LeadmanagementComponent implements OnInit {
         this.gridView.data[index].inEdit = false;
       }
       this.editedItem = null;
+    }
+  }
+  cellClickHandler(event: CellClickEvent): void {
+    if (!this.grid.isEditing()) {
+      this.grid.editCell(event.rowIndex, event.columnIndex);
+    }
+  }
+
+  // ✅ When you click outside a cell
+  cellCloseHandler(event: CellCloseEvent): void {
+    if (!event.formGroup.valid) {
+      event.preventDefault(); // prevent closing if form is invalid
+    }
+  }
+
+  // ✅ When you press Enter or move to another cell and save
+  saveHandler(event: SaveEvent): void {
+    const updatedItem = event.formGroup.value;
+    const index = this.gridItems.findIndex(item => item.id === updatedItem.id);
+    if (index > -1) {
+      this.gridItems[index] = updatedItem;
+      this.updateGridView();
     }
   }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 

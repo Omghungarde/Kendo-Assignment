@@ -89,6 +89,7 @@
   </div>
 
   <kendo-grid
+  #grid
   [data]="gridView.data"
   [pageSize]="pageSize"
   [skip]="skip"
@@ -99,90 +100,76 @@
   [columnMenu]="true"
   [reorderable]="true"
   [resizable]="true"
-  [editable]="true"
+  [editable]="'inline'" 
   (pageChange)="pageChange($event)"
   (sortChange)="sortChange($event)"
-  (dblclick)="onRowDoubleClick($event)"
-  (click)="onGridClick($event)"
+  (cellClose)="cellCloseHandler($event)"
+  (save)="saveHandler($event)"
+  (cancel)="cancelHandler($event)"
+  (cellClick)="cellClickHandler($event)"
 >
+  <!-- Checkbox Column -->
+  <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
 
+  <!-- Custom Action Split Button -->
+  <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <kendo-splitbutton *ngIf="!isItemInEditMode(dataItem)" [data]="listItems" class="action_button">
+        <i class="fas fa-eye"></i> Action
+      </kendo-splitbutton>
+    </ng-template>
+  </kendo-grid-column>
 
-    <!-- Checkbox Column -->
-    <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
+  <!-- Editable Fields -->
+  <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
 
-    <!-- Custom Action Split Button -->
-    <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <kendo-splitbutton *ngIf="!isItemInEditMode(dataItem)" [data]="listItems" class="action_button">
-          <i class="fas fa-eye"></i> Action
-        </kendo-splitbutton>
-      </ng-template>
-    </kendo-grid-column>
+  <kendo-grid-column field="lastName" title="Last Name" [width]="150" [editable]="true">
+    <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-column="column">
+      <input kendoTextBox [(ngModel)]="dataItem[column.field]" (blur)="onCellBlur(dataItem)" />
+    </ng-template>
+  </kendo-grid-column>
 
-    <!-- Editable Fields -->
-    <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="firstName" title="First Name" [width]="150" [editable]="true">
+    <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-column="column">
+      <input kendoTextBox [(ngModel)]="dataItem[column.field]" (blur)="onCellBlur(dataItem)" />
+    </ng-template>
+  </kendo-grid-column>
+  
+  <kendo-grid-column field="email" title="Email" [width]="200" [editable]="true">
+    <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-column="column">
+      <input kendoTextBox [(ngModel)]="dataItem[column.field]" (blur)="onCellBlur(dataItem)" />
+    </ng-template>
+  </kendo-grid-column>
 
-    <kendo-grid-column field="lastName" title="Last Name" [width]="150" [columnMenu]="true" [sortable]="true">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.lastName }}</span>
-        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.lastName" class="k-textbox" (blur)="onCellBlur($event)" />
-      </ng-template>
-    </kendo-grid-column>
+  <!-- Non-editable Fields -->
+  <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
+  <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="appointmentType" title="Appointment Type" [width]="180"></kendo-grid-column>
+  <kendo-grid-column field="bookingAgency" title="Booking Agency" [width]="180"></kendo-grid-column>
+  <kendo-grid-column field="assignedDate" title="Assigned Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
 
-    <!-- <kendo-grid-column field="firstName" title="First Name" [width]="150">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <span *ngIf="!isItemInEditMode(dataItem)"> {{ dataItem.firstName }} </span>
-        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.firstName" class="k-textbox" (blur)="onCellBlur($event)" />
-      </ng-template>
-    </kendo-grid-column> -->
-    <kendo-grid-column field="firstName" title="First Name" [width]="150">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.firstName }}</span>
-        <input *ngIf="isItemInEditMode(dataItem)"
-               [(ngModel)]="dataItem.firstName"
-               (blur)="onCellBlur(dataItem)"
-               class="k-textbox" />
-      </ng-template>
-    </kendo-grid-column>
-    
-    <kendo-grid-column field="email" title="Email" [width]="200">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.email }}</span>
-        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.email" class="k-textbox" (blur)="onCellBlur($event)" />
-      </ng-template>
-    </kendo-grid-column>
+  <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
+    </ng-template>
+  </kendo-grid-column>
 
-    <!-- Non-editable Fields -->
-    <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
-    <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="appointmentType" title="Appointment Type" [width]="180"></kendo-grid-column>
-    <kendo-grid-column field="bookingAgency" title="Booking Agency" [width]="180"></kendo-grid-column>
-    <kendo-grid-column field="assignedDate" title="Assigned Date" filter="date" editor="date"
-      [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
 
-    <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
-      </ng-template>
-    </kendo-grid-column>
+  <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
+    <ng-template kendoGridCellTemplate>
+      <span class="text-muted">N/A</span>
+    </ng-template>
+  </kendo-grid-column>
 
-    <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date" [width]="150"></kendo-grid-column>
 
-    <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
-      <ng-template kendoGridCellTemplate>
-        <span class="text-muted">N/A</span>
-      </ng-template>
-    </kendo-grid-column>
+</kendo-grid>
 
-    <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date"
-      [width]="150"></kendo-grid-column>
-    <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date"
-      [width]="150"></kendo-grid-column>
-
-    
-  </kendo-grid>                                                
+                                              
 </div>
                                            
        
@@ -212,5 +199,3 @@
         </ng-container>
       </ng-template>
     </kendo-grid-column> -->
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
