@@ -38,75 +38,71 @@ import { orderBy } from '@progress/kendo-data-query';
    templateUrl: './leadmanagement.component.html',
    styleUrls: ['./leadmanagement.component.css']
  })
- export class LeadmanagementComponent implements OnInit {
-   @ViewChild('excelExport', { static: false }) excelExport!: ExcelExportComponent;
-   @ViewChild(GridComponent) grid!: GridComponent;
- 
-   public listItems: string[] = ['All Leads', 'Pending', 'Completed'];
-   public searchPreference: string[] = ['Today\'s Leads', 'Saved 1', 'Custom 2'];
-   public allData: any[] = []; // holds the full original data
-   public gridItems: any[] = [];
-   public gridView: GridDataResult = { data: [], total: 0 };
-   public pageSize = 10;
-   public skip = 0;
-   public searchText: string = '';
-   public sort: any[] = [];
+ // ... [unchanged imports]
 
-   public formGroup!: FormGroup;
-   private editedRowIndex: number | null = null;
- 
-   constructor(
-     private fb: FormBuilder,
-     private http: HttpClient,
-     public recordService: RecordService
-   ) {}
-   
- 
-   ngOnInit(): void {
-     this.loadGridData();
-   }
- 
-   private loadGridData(): void {
-     this.recordService.getRecords().subscribe({
-       next: (data) => {
-         this.gridItems = data;
-         this.updateGridView();
-       },
-       error: (err) => console.error('Error loading data', err)
-     });
-   }
- 
-  //  private updateGridView(): void {
-  //    this.gridView = {
-  //      data: this.gridItems,
-  //      total: this.gridItems.length
-  //    };
-  //  }
-   private updateGridView(): void {
+export class LeadmanagementComponent implements OnInit {
+  @ViewChild('excelExport', { static: false }) excelExport!: ExcelExportComponent;
+  @ViewChild(GridComponent) grid!: GridComponent;
+
+  public listItems: string[] = ['All Leads', 'Pending', 'Completed'];
+  public searchPreference: string[] = ['Today\'s Leads', 'Saved 1', 'Custom 2'];
+  public allData: any[] = [];
+  public gridItems: any[] = [];
+  public gridView: any = { data: [], total: 0 };
+  public pageSize = 10;
+  public skip = 0;
+  public searchText: string = '';
+  public sort: any[] = [];
+
+  public formGroup!: FormGroup;
+  private editedRowIndex: number | null = null;
+  public editedItem: any = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    public recordService: RecordService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadGridData();
+  }
+
+  private loadGridData(): void {
+    this.recordService.getRecords().subscribe({
+      next: (data) => {
+        this.gridItems = data;
+        this.updateGridView();
+      },
+      error: (err) => console.error('Error loading data', err)
+    });
+  }
+
+  private updateGridView(): void {
     const sortedData = orderBy(this.gridItems, this.sort);
     this.gridView = {
       data: sortedData.slice(this.skip, this.skip + this.pageSize),
       total: sortedData.length
     };
   }
- 
-   public pageChange(event: PageChangeEvent): void {
-     this.skip = event.skip;
-     this.updateGridView();
-   }
- 
-   public exportToExcel(): void {
-     this.excelExport.save();
-   }
- 
-   public onFilter(value: string): void {
+
+  public pageChange(event: PageChangeEvent): void {
+    this.skip = event.skip;
+    this.updateGridView();
+  }
+
+  public exportToExcel(): void {
+    this.excelExport.save();
+  }
+
+  public onFilter(value: string): void {
     this.searchAndFilter(value);
   }
-  
+
   public onSearchClick(value: string): void {
     this.searchAndFilter(value);
   }
-  
+
   private searchAndFilter(value: string): void {
     const searchText = value.toLowerCase();
     const filtered = this.gridItems.filter(item =>
@@ -114,168 +110,191 @@ import { orderBy } from '@progress/kendo-data-query';
         String(val).toLowerCase().includes(searchText)
       )
     );
-  
+
     this.gridView = {
       data: filtered.slice(0, this.pageSize),
       total: filtered.length
     };
-  
-    // If using pagination, reset to first page:
+
     this.skip = 0;
   }
+
   public sortChange(sort: any[]): void {
     this.sort = sort;
     this.updateGridView();
   }
-  
- 
-   public editHandler({ sender, rowIndex, dataItem }: any): void {
-     this.closeEditor(sender);
-     this.formGroup = this.fb.group({
-       id: [dataItem.id],
-       recordId: [dataItem.recordId],
-       lastName: [dataItem.lastName, Validators.required],
-       firstName: [dataItem.firstName, Validators.required],
-       email: [dataItem.email, [Validators.required, Validators.email]],
-       phoneType: [dataItem.phoneType],
-       leadId: [dataItem.leadId],
-       appointmentType: [dataItem.appointmentType],
-       bookingAgency: [dataItem.bookingAgency],
-       assignedDate: [dataItem.assignedDate],
-       salesRep: [dataItem.salesRep],
-       coordinator: [dataItem.coordinator],
-       syncToMobile: [dataItem.syncToMobile],
-       createdSource: [dataItem.createdSource],
-       mobileSyncStatus: [dataItem.mobileSyncStatus],
-       effectiveDate: [dataItem.effectiveDate],
-       validThrough: [dataItem.validThrough],
-     });
- 
-   
-     this.editedRowIndex = rowIndex;
-     sender.editRow(rowIndex, this.formGroup);
-   }
-   
- 
-   public cancelHandler({ sender }: any): void {
-     this.closeEditor(sender);
-   }
- 
-   public saveHandler({ sender, rowIndex, formGroup }: any): void {
-     const updatedRecord = formGroup.value;
- 
- 
-   
-     if (!updatedRecord.id) {
-       console.error('Missing ID. Cannot update.');
-       alert('Error: Missing ID. Please try again.');
-       return;
-     }
- 
-   
-     // Call service to update data in the server
-     this.recordService.updateRecord(updatedRecord).subscribe({
-       next: () => {
-         const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
-         if (index !== -1) {
-           this.gridItems[index] = updatedRecord;
-         }
-         this.updateGridView();
-         this.closeEditor(sender);
-       },
-       error: (err) => {
-         console.error('Update error:', err);
-         alert('Error updating the record. Please try again.');
-       }
-     });
-   }
- 
-   
-   public removeHandler({ dataItem }: any): void {
-     const id = dataItem.id;
- 
-   
-     // Call service to delete the record from the server
-     this.recordService.deleteRecord(id).subscribe({
-       next: () => {
-         // Remove the record from the local grid view
-         this.gridItems = this.gridItems.filter(item => item.id !== id);
-         this.updateGridView();
-       },
-       error: (err) => console.error('Delete error:', err)
-     });
-   }
-   public addNewLead(): void {
-     const newLead = {
-       recordId:  this.generateNextRecordId(),  // or leave this blank if JSON server generates it
-       lastName: '',
-       firstName: '',
-       email: '',
-       phoneType: '',
-       leadId: '',
-       appointmentType: '',
-       bookingAgency: '',
-       assignedDate: new Date(),
-       salesRep: '',
-       coordinator: '',
-       syncToMobile: false,
-       createdSource: '',
-       mobileSyncStatus: 'N/A',
-       effectiveDate: new Date(),
-       validThrough: new Date()
-     };
-   
-     this.recordService.addRecord(newLead).subscribe({
-       next: (createdRecord) => {
-         this.gridItems.unshift(createdRecord);
-         this.updateGridView();
-   
-         // Optional: Open the newly added record in edit mode
-         this.editHandler({
-           sender: this.grid,
-           rowIndex: 0,
-           dataItem: createdRecord
-         });
-       },
-       error: (err) => {
-         console.error('Failed to create new record:', err);
-         alert('Error creating record. Try again.');
-       }
-     });
-   }
-   
-   
- 
-   private closeEditor(grid: GridComponent): void {
+
+  public editHandler({ sender, rowIndex, dataItem }: any): void {
+    this.closeEditor(sender);
+    this.formGroup = this.fb.group({
+      id: [dataItem.id],
+      recordId: [dataItem.recordId],
+      lastName: [dataItem.lastName, Validators.required],
+      firstName: [dataItem.firstName, Validators.required],
+      email: [dataItem.email, [Validators.required, Validators.email]],
+      phoneType: [dataItem.phoneType],
+      leadId: [dataItem.leadId],
+      appointmentType: [dataItem.appointmentType],
+      bookingAgency: [dataItem.bookingAgency],
+      assignedDate: [dataItem.assignedDate],
+      salesRep: [dataItem.salesRep],
+      coordinator: [dataItem.coordinator],
+      syncToMobile: [dataItem.syncToMobile],
+      createdSource: [dataItem.createdSource],
+      mobileSyncStatus: [dataItem.mobileSyncStatus],
+      effectiveDate: [dataItem.effectiveDate],
+      validThrough: [dataItem.validThrough],
+    });
+
+    this.editedRowIndex = rowIndex;
+    sender.editRow(rowIndex, this.formGroup);
+  }
+
+  public cancelHandler({ sender }: any): void {
+    this.closeEditor(sender);
+  }
+
+  public saveHandler({ sender, rowIndex, formGroup }: any): void {
+    const updatedRecord = formGroup.value;
+
+    if (!updatedRecord.id) {
+      console.error('Missing ID. Cannot update.');
+      alert('Error: Missing ID. Please try again.');
+      return;
+    }
+
+    this.recordService.updateRecord(updatedRecord).subscribe({
+      next: () => {
+        const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
+        if (index !== -1) {
+          this.gridItems[index] = updatedRecord;
+        }
+        this.updateGridView();
+        this.closeEditor(sender);
+      },
+      error: (err) => {
+        console.error('Update error:', err);
+        alert('Error updating the record. Please try again.');
+      }
+    });
+  }
+
+  public removeHandler({ dataItem }: any): void {
+    const id = dataItem.id;
+    this.recordService.deleteRecord(id).subscribe({
+      next: () => {
+        this.gridItems = this.gridItems.filter(item => item.id !== id);
+        this.updateGridView();
+      },
+      error: (err) => console.error('Delete error:', err)
+    });
+  }
+
+  public addNewLead(): void {
+    const newLead = {
+      recordId: this.generateNextRecordId(),
+      lastName: '',
+      firstName: '',
+      email: '',
+      phoneType: '',
+      leadId: '',
+      appointmentType: '',
+      bookingAgency: '',
+      assignedDate: new Date(),
+      salesRep: '',
+      coordinator: '',
+      syncToMobile: false,
+      createdSource: '',
+      mobileSyncStatus: 'N/A',
+      effectiveDate: new Date(),
+      validThrough: new Date()
+    };
+
+    this.recordService.addRecord(newLead).subscribe({
+      next: (createdRecord) => {
+        this.gridItems.unshift(createdRecord);
+        this.updateGridView();
+        this.editHandler({
+          sender: this.grid,
+          rowIndex: 0,
+          dataItem: createdRecord
+        });
+      },
+      error: (err) => {
+        console.error('Failed to create new record:', err);
+        alert('Error creating record. Try again.');
+      }
+    });
+  }
+
+  private closeEditor(grid: GridComponent): void {
     if (this.editedRowIndex !== null) {
       grid.closeRow(this.editedRowIndex);
       this.editedRowIndex = null;
       this.formGroup = this.fb.group({});
     }
   }
+
   public isItemInEditMode(item: any): boolean {
     return this.formGroup && this.formGroup.get('id')?.value === item.id;
   }
-  public isNonIntl: boolean = false; // default value
 
-  // Function to handle toggling between Intl and Non-Intl
+  public isNonIntl: boolean = false;
+
   toggleNonIntl(value: boolean): void {
     this.isNonIntl = value;
   }
+
   private generateNextRecordId(): string {
     if (!this.gridItems.length) {
-      return 'R001'; // start with R001 if no records
+      return 'R001';
     }
-  
+
     const existingIds = this.gridItems
       .map(item => item.recordId)
-      .filter(id => /^R\d{3}$/.test(id)) // only match Rxxx format
-      .map(id => parseInt(id.substring(1))) // convert to number
-  
+      .filter(id => /^R\d{3}$/.test(id))
+      .map(id => parseInt(id.substring(1)));
+
     const maxId = Math.max(...existingIds);
     const nextId = maxId + 1;
-  
-    return 'R' + nextId.toString().padStart(3, '0'); // zero-padded
+
+    return 'R' + nextId.toString().padStart(3, '0');
   }
 
-}
+  // ✅ NEW LOGIC FOR INLINE DOUBLE CLICK EDIT
+  public onRowDoubleClick(event: any): void {
+    const clickedItem = event.dataItem;
+    this.editedItem = { ...clickedItem };
+    this.gridView.data.forEach((item:any)=> {
+      item.inEdit = item === clickedItem;
+    });
+  }
+
+  public onGridClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (target.tagName.toLowerCase() !== 'input') {
+      this.saveAndExitEdit();
+    }
+  }
+
+  public onCellBlur(dataItem: any): void {
+    setTimeout(() => {
+      this.saveAndExitEdit();
+    }, 100);
+  }
+
+  public isItemInEditModeInline(dataItem: any): boolean {
+    return dataItem?.inEdit;
+  }
+
+  private saveAndExitEdit(): void {
+    if (this.editedItem) {
+      const index = this.gridView.data.findIndex((item:any) => item.recordId === this.editedItem.recordId);
+      if (index !== -1) {
+        this.gridView.data[index] = { ...this.gridView.data[index], ...this.editedItem };
+        this.gridView.data[index].inEdit = false;
+      }
+      this.editedItem = null;
+    }
+  }
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 

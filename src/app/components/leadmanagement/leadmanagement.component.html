@@ -99,9 +99,11 @@
   [columnMenu]="true"
   [reorderable]="true"
   [resizable]="true"
+  [editable]="true"
   (pageChange)="pageChange($event)"
-  [editable]="'inline'"
   (sortChange)="sortChange($event)"
+  (dblclick)="onRowDoubleClick($event)"
+  (click)="onGridClick($event)"
 >
 
 
@@ -123,21 +125,30 @@
     <kendo-grid-column field="lastName" title="Last Name" [width]="150" [columnMenu]="true" [sortable]="true">
       <ng-template kendoGridCellTemplate let-dataItem>
         <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.lastName }}</span>
-        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.lastName" class="k-textbox" />
+        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.lastName" class="k-textbox" (blur)="onCellBlur($event)" />
       </ng-template>
     </kendo-grid-column>
 
-    <kendo-grid-column field="firstName" title="First Name" [width]="150">
+    <!-- <kendo-grid-column field="firstName" title="First Name" [width]="150">
       <ng-template kendoGridCellTemplate let-dataItem>
         <span *ngIf="!isItemInEditMode(dataItem)"> {{ dataItem.firstName }} </span>
-        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.firstName" class="k-textbox" />
+        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.firstName" class="k-textbox" (blur)="onCellBlur($event)" />
+      </ng-template>
+    </kendo-grid-column> -->
+    <kendo-grid-column field="firstName" title="First Name" [width]="150">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.firstName }}</span>
+        <input *ngIf="isItemInEditMode(dataItem)"
+               [(ngModel)]="dataItem.firstName"
+               (blur)="onCellBlur(dataItem)"
+               class="k-textbox" />
       </ng-template>
     </kendo-grid-column>
-
+    
     <kendo-grid-column field="email" title="Email" [width]="200">
       <ng-template kendoGridCellTemplate let-dataItem>
         <span *ngIf="!isItemInEditMode(dataItem)">{{ dataItem.email }}</span>
-        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.email" class="k-textbox" />
+        <input *ngIf="isItemInEditMode(dataItem)" [(ngModel)]="dataItem.email" class="k-textbox" (blur)="onCellBlur($event)" />
       </ng-template>
     </kendo-grid-column>
 
@@ -170,8 +181,14 @@
     <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date"
       [width]="150"></kendo-grid-column>
 
-    <!-- Command Buttons Column -->
-    <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="true">
+    
+  </kendo-grid>                                                
+</div>
+                                           
+       
+
+<!-- Command Buttons Column -->
+    <!-- <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="true">
       <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
         <ng-container *ngIf="!isItemInEditMode(dataItem)">
 
@@ -194,8 +211,6 @@
           </button>
         </ng-container>
       </ng-template>
-    </kendo-grid-column>
+    </kendo-grid-column> -->
 
-
-  </kendo-grid>
-</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
