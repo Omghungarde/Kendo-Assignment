@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +21,20 @@ export class RecordService {
 
   // Update a record
   updateRecord(record: any): Observable<any> {
+    if (!record.id) {
+      console.error('Record ID is missing. Cannot update.');
+      throw new Error('Record ID is required for updating.');
+    }
+
     console.log('Updating record with ID:', record.id); // Debugging log
     console.log('Payload:', record); // Debugging log
-    return this.http.put<any>(`${this.apiUrl}/${record.id}`, record);
+
+    return this.http.put<any>(`${this.apiUrl}/${record.id}`, record).pipe(
+      catchError((error) => {
+        console.error('Error updating record:', error);
+        return throwError(() => new Error('Failed to update record.')); // Improved error handling
+      })
+    );
   }
 
   // Delete a record

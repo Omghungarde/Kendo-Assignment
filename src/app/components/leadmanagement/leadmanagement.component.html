@@ -127,22 +127,16 @@
   <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
 
   <kendo-grid-column field="lastName" title="Last Name" [width]="150" [editable]="true">
-    <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-column="column">
-      <input kendoTextBox [(ngModel)]="dataItem[column.field]" (blur)="onCellBlur(dataItem)" />
-    </ng-template>
   </kendo-grid-column>
 
   <kendo-grid-column field="firstName" title="First Name" [width]="150" [editable]="true">
-    <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-column="column">
-      <input kendoTextBox [(ngModel)]="dataItem[column.field]" (blur)="onCellBlur(dataItem)" />
-    </ng-template>
+    
   </kendo-grid-column>
   
   <kendo-grid-column field="email" title="Email" [width]="200" [editable]="true">
-    <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-column="column">
-      <input kendoTextBox [(ngModel)]="dataItem[column.field]" (blur)="onCellBlur(dataItem)" />
-    </ng-template>
+    
   </kendo-grid-column>
+  
 
   <!-- Non-editable Fields -->
   <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>

@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/core';
  import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
  import { GridDataResult, GridComponent, PageChangeEvent, GridModule, CellClickEvent, CellCloseEvent, SaveEvent } from '@progress/kendo-angular-grid';
  import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
@@ -61,7 +61,8 @@ export class LeadmanagementComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    public recordService: RecordService
+    public recordService: RecordService,
+    public cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -252,10 +253,12 @@ export class LeadmanagementComponent implements OnInit {
     }
   }
   public onCellBlur(dataItem: any): void {
-    setTimeout(() => {
-      this.saveAndExitEdit();
-    }, 100);
+    this.recordService.updateRecord(dataItem).subscribe(() => {
+      this.loadGridData();
+    });
   }
+  
+  
 
   public isItemInEditModeInline(dataItem: any): boolean {
     return dataItem?.inEdit;
@@ -288,8 +291,7 @@ export class LeadmanagementComponent implements OnInit {
       return;
     }
   
-    const updatedItem = { ...event.dataItem, ...event.formGroup.value }; // Merge original + new edits
-  
+    const updatedItem = { ...event.dataItem, ...event.formGroup.value }; 
     this.recordService.updateRecord(updatedItem).subscribe({
       next: () => {
         const index = this.gridItems.findIndex(item => item.id === updatedItem.id);
@@ -305,10 +307,8 @@ export class LeadmanagementComponent implements OnInit {
       }
     });
   }
-  
-  
 
-  // ✅ When you press Enter or move to another cell and save
+  // Refined the saveHandler method to ensure proper data saving and UI updates
   public saveHandler(event: SaveEvent): void {
     const updatedItem = event.formGroup.value;
 
@@ -319,17 +319,23 @@ export class LeadmanagementComponent implements OnInit {
     }
 
     this.recordService.updateRecord(updatedItem).subscribe({
-      next: () => {
-        // Update the gridItems array with the updated record
-        const index = this.gridItems.findIndex(item => item.id === updatedItem.id);
+      next: (response) => {
+        // Update the gridItems array with the updated record from the server response
+        const index = this.gridItems.findIndex(item => item.id === response.id);
         if (index !== -1) {
-          this.gridItems[index] = updatedItem;
+          this.gridItems[index] = response;
+        } else {
+          console.warn('Updated item not found in gridItems. Adding it.');
+          this.gridItems.push(response);
         }
 
         // Update the gridView to reflect the changes in the UI
         this.updateGridView();
 
-        console.log('Record updated successfully');
+        // Force change detection to ensure the UI is refreshed
+        this.cdr.detectChanges();
+
+        console.log('Record updated successfully:', response);
       },
       error: (err) => {
         console.error('Update error:', err);
@@ -337,25 +343,19 @@ export class LeadmanagementComponent implements OnInit {
       }
     });
   }
-  
+
   public cellDblClickHandler(event: any): void {
-    // Extract rowIndex and columnIndex from the event
     const rowIndex = event.rowIndex;
     const columnIndex = event.columnIndex;
-    const data = this.grid.data as any[] | null; // Explicitly type or cast the data property
+    const data = this.grid.data as any[] | null;
     if (!data) {
       console.error('Grid data is null or undefined');
       return;
     }
-    const dataItem = data[rowIndex]; // Get the data item corresponding to the rowIndex
-  
+    const dataItem = data[rowIndex];
     console.log('Double-clicked cell:', event);
     console.log('Row data:', dataItem);
-  
-    // Create a form group for inline editing
     const formGroup = this.createFormGroup(dataItem);
-  
-    // Trigger edit mode for the clicked cell
     this.grid.editCell(rowIndex, columnIndex, formGroup);
   }
 
@@ -409,77 +409,3 @@ export class LeadmanagementComponent implements OnInit {
   }
   
 }
-
-
-
-// gridDoubleClick(event: MouseEvent): void {
-  //   console.log('Double click detected');
-  
-  //   let target = event.target as HTMLElement;
-  
-  //   // Walk up until you find a kendo-grid-cell
-  //   while (target && !target.classList.contains('kendo-grid-cell')) {
-  //     target = target.parentElement as HTMLElement;
-  //   }
-  
-  //   if (!target) {
-  //     console.log('No grid cell clicked');
-  //     return;
-  //   }
-  
-  //   // Now we know the cell is valid
-  //   const rowElement = target.closest('tr[kendoGridFocusable]') as HTMLElement;
-  //   if (!rowElement) {
-  //     console.log('No row element found');
-  //     return;
-  //   }
-  
-  //   const rowIndex = parseInt(rowElement.getAttribute('data-kendo-grid-item-index') || '-1', 10);
-  //   if (rowIndex === -1) {
-  //     console.log('Invalid row index');
-  //     return;
-  //   }
-  
-  //   const cellIndex = Array.from(rowElement.children).indexOf(target);
-  //   if (cellIndex === -1) {
-  //     console.log('Invalid cell index');
-  //     return;
-  //   }
-  
-  //   // Get the column based on the index
-  //   const column = this.grid.columns.toArray()[cellIndex];
-  
-  //   if (column) {
-  //     const columnWithField = column as any; // Replace 'any' with the specific type if known
-  //     console.log('Editing row:', rowIndex, 'column:', columnWithField.field);
-  //     this.grid.editCell(rowIndex, column);
-  //   } else {
-  //     console.log('No column found at index:', cellIndex);
-  //   }
-  // }
-
-
-  // public saveHandler({ sender, rowIndex, formGroup }: any): void {
-  //   const updatedRecord = formGroup.value;
-
-  //   if (!updatedRecord.id) {
-  //     console.error('Missing ID. Cannot update.');
-  //     alert('Error: Missing ID. Please try again.');
-  //     return;
-  //   }
-
-  //   this.recordService.updateRecord(updatedRecord).subscribe({
-  //     next: () => {
-  //       const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
-  //       if (index !== -1) {
-  //         this.gridItems[index] = updatedRecord;
-  //       }
-  //       this.updateGridView();
-  //       this.closeEditor(sender);
-  //     },
-  //     error: (err) => {
-  //       console.error('Update error:', err);
-  //       alert('Error updating the record. Please try again.');
-  //     }
-  //   });
-  // }
