@@ -64,7 +64,7 @@
     </div>
 
     <!-- <div class="search-group">
-      <kendo-textbox [style.width.px]="165" placeholder="Search in all columns..."
+ </div>     <kendo-textbox [style.width.px]="165" placeholder="Search in all columns..."
         (valueChange)="onFilter($event)"></kendo-textbox>
     </div>
 
@@ -100,14 +100,17 @@
   [columnMenu]="true"
   [reorderable]="true"
   [resizable]="true"
-  [editable]="'inline'" 
+  [editable]="'incell'"
   (pageChange)="pageChange($event)"
   (sortChange)="sortChange($event)"
   (cellClose)="cellCloseHandler($event)"
   (save)="saveHandler($event)"
   (cancel)="cancelHandler($event)"
   (cellClick)="cellClickHandler($event)"
+  (dblclick)="handleDblClick($event)"  
 >
+
+
   <!-- Checkbox Column -->
   <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
 
@@ -199,3 +202,4 @@
         </ng-container>
       </ng-template>
     </kendo-grid-column> -->
+                                                                                                                                                                                                                                                                                                                                                                   

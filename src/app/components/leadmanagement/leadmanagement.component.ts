@@ -154,30 +154,7 @@ export class LeadmanagementComponent implements OnInit {
     this.closeEditor(sender);
   }
 
-  // public saveHandler({ sender, rowIndex, formGroup }: any): void {
-  //   const updatedRecord = formGroup.value;
-
-  //   if (!updatedRecord.id) {
-  //     console.error('Missing ID. Cannot update.');
-  //     alert('Error: Missing ID. Please try again.');
-  //     return;
-  //   }
-
-  //   this.recordService.updateRecord(updatedRecord).subscribe({
-  //     next: () => {
-  //       const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
-  //       if (index !== -1) {
-  //         this.gridItems[index] = updatedRecord;
-  //       }
-  //       this.updateGridView();
-  //       this.closeEditor(sender);
-  //     },
-  //     error: (err) => {
-  //       console.error('Update error:', err);
-  //       alert('Error updating the record. Please try again.');
-  //     }
-  //   });
-  // }
+  
 
   public removeHandler({ dataItem }: any): void {
     const id = dataItem.id;
@@ -262,11 +239,10 @@ export class LeadmanagementComponent implements OnInit {
   }
 
   public onRowDoubleClick(event: any): void {
-    const clickedItem = event.dataItem;
-    this.editedItem = { ...clickedItem };
-    this.gridView.data.forEach((item:any)=> {
-      item.inEdit = item === clickedItem;
-    });
+    const rowIndex = this.gridView.data.findIndex((item: any) => item === event.dataItem);
+    if (rowIndex !== -1) {
+      this.editHandler({ sender: this.grid, rowIndex, dataItem: event.dataItem });
+    }
   }
 
   public onGridClick(event: MouseEvent): void {
@@ -275,7 +251,168 @@ export class LeadmanagementComponent implements OnInit {
       this.saveAndExitEdit();
     }
   }
-  // gridDoubleClick(event: MouseEvent): void {
+  public onCellBlur(dataItem: any): void {
+    setTimeout(() => {
+      this.saveAndExitEdit();
+    }, 100);
+  }
+
+  public isItemInEditModeInline(dataItem: any): boolean {
+    return dataItem?.inEdit;
+  }
+
+  private saveAndExitEdit(): void {
+    if (this.editedItem) {
+      const index = this.gridView.data.findIndex((item:any) => item.recordId === this.editedItem.recordId);
+      if (index !== -1) {
+        this.gridView.data[index] = { ...this.gridView.data[index], ...this.editedItem };
+        this.gridView.data[index].inEdit = false;
+      }
+      this.editedItem = null;
+    }
+  }
+  public cellClickHandler(event: CellClickEvent): void {
+    if (event.type === 'click') {  // Ignore header clicks etc.
+      // If user single clicks, do nothing
+    }
+  }
+
+  // ✅ When you click outside a cell
+  public cellCloseHandler(event: CellCloseEvent): void {
+    if (!event.formGroup) {
+      return; // No formGroup, no action
+    }
+  
+    if (!event.formGroup.valid) {
+      event.preventDefault(); // Prevent closing if invalid
+      return;
+    }
+  
+    const updatedItem = { ...event.dataItem, ...event.formGroup.value }; // Merge original + new edits
+  
+    this.recordService.updateRecord(updatedItem).subscribe({
+      next: () => {
+        const index = this.gridItems.findIndex(item => item.id === updatedItem.id);
+        if (index !== -1) {
+          this.gridItems[index] = updatedItem;
+        }
+        this.updateGridView();
+        console.log('Record updated successfully');
+      },
+      error: (err) => {
+        console.error('Update error:', err);
+        alert('Error updating record.');
+      }
+    });
+  }
+  
+  
+
+  // ✅ When you press Enter or move to another cell and save
+  public saveHandler(event: SaveEvent): void {
+    const updatedItem = event.formGroup.value;
+
+    if (!updatedItem.id) {
+      console.error('Missing ID. Cannot update.');
+      alert('Error: Missing ID. Please try again.');
+      return;
+    }
+
+    this.recordService.updateRecord(updatedItem).subscribe({
+      next: () => {
+        // Update the gridItems array with the updated record
+        const index = this.gridItems.findIndex(item => item.id === updatedItem.id);
+        if (index !== -1) {
+          this.gridItems[index] = updatedItem;
+        }
+
+        // Update the gridView to reflect the changes in the UI
+        this.updateGridView();
+
+        console.log('Record updated successfully');
+      },
+      error: (err) => {
+        console.error('Update error:', err);
+        alert('Error updating the record. Please try again.');
+      }
+    });
+  }
+  
+  public cellDblClickHandler(event: any): void {
+    // Extract rowIndex and columnIndex from the event
+    const rowIndex = event.rowIndex;
+    const columnIndex = event.columnIndex;
+    const data = this.grid.data as any[] | null; // Explicitly type or cast the data property
+    if (!data) {
+      console.error('Grid data is null or undefined');
+      return;
+    }
+    const dataItem = data[rowIndex]; // Get the data item corresponding to the rowIndex
+  
+    console.log('Double-clicked cell:', event);
+    console.log('Row data:', dataItem);
+  
+    // Create a form group for inline editing
+    const formGroup = this.createFormGroup(dataItem);
+  
+    // Trigger edit mode for the clicked cell
+    this.grid.editCell(rowIndex, columnIndex, formGroup);
+  }
+
+  private createFormGroup(dataItem: any): FormGroup {
+    return this.fb.group({
+      id: [dataItem.id],
+      recordId: [dataItem.recordId],
+      lastName: [dataItem.lastName, Validators.required],
+      firstName: [dataItem.firstName, Validators.required],
+      email: [dataItem.email, [Validators.required, Validators.email]],
+      phoneType: [dataItem.phoneType],
+      leadId: [dataItem.leadId],
+      appointmentType: [dataItem.appointmentType],
+      bookingAgency: [dataItem.bookingAgency],
+      assignedDate: [dataItem.assignedDate],
+      salesRep: [dataItem.salesRep],
+      coordinator: [dataItem.coordinator],
+      syncToMobile: [dataItem.syncToMobile],
+      createdSource: [dataItem.createdSource],
+      mobileSyncStatus: [dataItem.mobileSyncStatus],
+      effectiveDate: [dataItem.effectiveDate],
+      validThrough: [dataItem.validThrough],
+    });
+  }
+  public handleDblClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const rowElement = target.closest('tr');
+    const cellElement = target.closest('td');
+
+    if (!rowElement || !cellElement) {
+      console.error('Could not determine row or cell from double-click event.');
+      return;
+    }
+
+    const rowIndex = parseInt(rowElement.getAttribute('data-kendo-grid-item-index') || '-1', 10);
+    const columnIndex = Array.from(rowElement.children).indexOf(cellElement);
+
+    if (rowIndex === -1 || columnIndex === -1) {
+      console.error('Invalid row or column index.');
+      return;
+    }
+
+    const dataItem = this.gridView.data[rowIndex];
+    if (!dataItem) {
+      console.error('No data item found for the given row index.');
+      return;
+    }
+
+    const formGroup = this.createFormGroup(dataItem);
+    this.grid.editCell(rowIndex, columnIndex, formGroup);
+  }
+  
+}
+
+
+
+// gridDoubleClick(event: MouseEvent): void {
   //   console.log('Double click detected');
   
   //   let target = event.target as HTMLElement;
@@ -320,52 +457,29 @@ export class LeadmanagementComponent implements OnInit {
   //     console.log('No column found at index:', cellIndex);
   //   }
   // }
-  
-  
-  
-  
-  
 
-  public onCellBlur(dataItem: any): void {
-    setTimeout(() => {
-      this.saveAndExitEdit();
-    }, 100);
-  }
 
-  public isItemInEditModeInline(dataItem: any): boolean {
-    return dataItem?.inEdit;
-  }
+  // public saveHandler({ sender, rowIndex, formGroup }: any): void {
+  //   const updatedRecord = formGroup.value;
 
-  private saveAndExitEdit(): void {
-    if (this.editedItem) {
-      const index = this.gridView.data.findIndex((item:any) => item.recordId === this.editedItem.recordId);
-      if (index !== -1) {
-        this.gridView.data[index] = { ...this.gridView.data[index], ...this.editedItem };
-        this.gridView.data[index].inEdit = false;
-      }
-      this.editedItem = null;
-    }
-  }
-  cellClickHandler(event: CellClickEvent): void {
-    if (!this.grid.isEditing()) {
-      this.grid.editCell(event.rowIndex, event.columnIndex);
-    }
-  }
+  //   if (!updatedRecord.id) {
+  //     console.error('Missing ID. Cannot update.');
+  //     alert('Error: Missing ID. Please try again.');
+  //     return;
+  //   }
 
-  // ✅ When you click outside a cell
-  cellCloseHandler(event: CellCloseEvent): void {
-    if (!event.formGroup.valid) {
-      event.preventDefault(); // prevent closing if form is invalid
-    }
-  }
-
-  // ✅ When you press Enter or move to another cell and save
-  saveHandler(event: SaveEvent): void {
-    const updatedItem = event.formGroup.value;
-    const index = this.gridItems.findIndex(item => item.id === updatedItem.id);
-    if (index > -1) {
-      this.gridItems[index] = updatedItem;
-      this.updateGridView();
-    }
-  }
-}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+  //   this.recordService.updateRecord(updatedRecord).subscribe({
+  //     next: () => {
+  //       const index = this.gridItems.findIndex(item => item.id === updatedRecord.id);
+  //       if (index !== -1) {
+  //         this.gridItems[index] = updatedRecord;
+  //       }
+  //       this.updateGridView();
+  //       this.closeEditor(sender);
+  //     },
+  //     error: (err) => {
+  //       console.error('Update error:', err);
+  //       alert('Error updating the record. Please try again.');
+  //     }
+  //   });
+  // }
