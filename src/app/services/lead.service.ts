@@ -41,4 +41,18 @@ export class RecordService {
   deleteRecord(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
-}
+
+  set(key: string, value: any): void {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  get(key: string): any {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  }
+
+  remove(key: string): void {
+    localStorage.removeItem(key);
+  }
+
+}                                                                                                                                                                                                                                                                                                                                                    

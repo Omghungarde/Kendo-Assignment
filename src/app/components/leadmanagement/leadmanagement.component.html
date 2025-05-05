@@ -120,7 +120,7 @@
   (columnReorder)="onColumnReorder()"  
 >
   <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
-  <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
+  <kendo-grid-column field="action_button" title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
     <ng-template kendoGridCellTemplate let-dataItem>
       <kendo-splitbutton *ngIf="!isItemInEditMode(dataItem)" [data]="listItems" class="action_button">
         <i class="fas fa-eye"></i> Action

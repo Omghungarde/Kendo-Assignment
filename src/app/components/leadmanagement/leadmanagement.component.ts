@@ -11,7 +11,8 @@ import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild
  import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
  import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
  import { RecordService } from '../../services/lead.service';
-import { orderBy, State } from '@progress/kendo-data-query';
+import { orderBy, State,process } from '@progress/kendo-data-query';
+import { GridSettings, GridSettingsWithData } from '../../interface';
  
  @Component({
    selector: 'app-leadmanagement',
@@ -64,13 +65,17 @@ export class LeadmanagementComponent implements OnInit {
     take: 10
   };
   public columnOrder: string[] = [];
+  public columnsConfig: any[] = [];
+
 
   // public gridView: GridDataResult;
   public pageSize: number = 10;
   public skip: number = 0;
   public preferences: string[] = [];  // Store names of preferences
   public currentPreference: string = '';
-
+  public gridData: any[] = [];
+  
+  
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -419,45 +424,44 @@ export class LeadmanagementComponent implements OnInit {
     const name = prompt('Enter a name for the grid state:');
     if (!name) return;
 
-    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
-
-    if (preferences.some((p: any) => p.name === name)) {
-      alert('Preference name already exists!');
+    if (!this.columnsConfig?.length) {
+      console.warn('❗ Column config is empty, cannot save.');
       return;
     }
 
-    preferences.push({
+    const preference = {
       name,
       state: this.gridState,
-      columnOrder: this.columnOrder
-    });
+      columnsConfig: this.columnsConfig
+    };
 
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    preferences.push(preference);
     localStorage.setItem('preferences', JSON.stringify(preferences));
 
-    // ✅ Reload names from localStorage
-    this.loadSavedPreferences();
+    this.loadSavedPreferences(); // Refresh the dropdown options after saving a new preference
   }
-
-  private loadSavedPreferences(): void {
-    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
-    this.preferences = preferences.map((p: any) => p.name);
-    console.log('Dropdown preferences loaded:', this.preferences);
-  }
-
-  public loadPreference(preferenceName: string): void {
-    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
-    const selected = preferences.find((p:any) => p.name === preferenceName);
-    if (!selected) return;
   
+  public loadPreference(name: string): void {
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    const selected = preferences.find((p: any) => p.name === name);
+    if (!selected) return;
+
     this.gridState = selected.state;
     this.skip = this.gridState.skip || 0;
     this.pageSize = this.gridState.take || 10;
-    this.columnOrder = selected.columnOrder || [];
-  
-    this.reorderColumns(); // ✅ Important
-    this.loadGridData();   // or refresh your grid manually
+
+    this.applyColumnSettings(selected.columnsConfig); // Apply column settings
+    this.loadGridData(); // Load the grid data based on the state
   }
   
+  
+  private loadSavedPreferences(): void {
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    this.preferences = preferences.map((p: any) => p.name); // Map saved preference names
+    console.log('Saved preferences loaded:', this.preferences);
+  }
+
 
   public dataStateChange(state: DataStateChangeEvent): void {
     this.gridState = state;
@@ -465,37 +469,71 @@ export class LeadmanagementComponent implements OnInit {
     this.pageSize = state.take!;
     localStorage.setItem('gridState', JSON.stringify(state));
   }
-
   public onColumnReorder(): void {
-    // Use setTimeout to let Kendo apply the new order before reading it
-    setTimeout(() => {
-      const columns = this.grid.columns.toArray();
-  
-      this.columnOrder = columns
-        .map((col: any) => col.field || col.title)
-        .filter((name: any) => !!name);
-  
-      console.log('💾 New column order:', this.columnOrder);
-    });
+    const currentColumns = this.grid.columns.toArray();
+
+    this.columnsConfig = currentColumns
+      .filter((col): col is ColumnComponent => col instanceof ColumnComponent)
+      .map((col, index) => ({
+        field: col.field,
+        title: col.title,
+        hidden: col.hidden,
+        width: col.width,
+        orderIndex: index
+      }));
+
+    console.log('📦 Updated columnsConfig:', this.columnsConfig);
   }
   
-  
-
-  public reorderColumns(): void {
-    if (!this.columnOrder.length) return;
+  public applyColumnSettings(columnsConfig: any[]): void {
+    if (!columnsConfig?.length) return;
 
     const currentColumns = this.grid.columns.toArray();
-    const ordered = this.columnOrder
-      .map(name =>
-        currentColumns.find(c =>
-          c instanceof ColumnComponent
-            ? c.field === name || c.title === name
-            : c.title === name
-        )
+
+    // Match and reorder columns based on saved config
+    const ordered = columnsConfig.map(cfg =>
+      currentColumns.find(col =>
+        col instanceof ColumnComponent &&
+        ((col.field && col.field === cfg.field) || col.title === cfg.title)
       )
-      .filter(col => !!col);
+    ).filter(c => !!c) as ColumnComponent[];
 
     this.grid.columns.reset(ordered);
     this.grid.columns.notifyOnChanges();
+
+    // Apply visibility and width safely
+    ordered.forEach((col, i) => {
+      const cfg = columnsConfig[i];
+      if (cfg) {
+        if (cfg.hidden !== undefined) col.hidden = cfg.hidden;
+        if (cfg.width !== undefined) col.width = cfg.width;
+      }
+    });
   }
+  public mapGridSettings(gridSettings: GridSettings): GridSettingsWithData {
+    const state = gridSettings.state;
+    this.mapDateFilter(state.filter);
+
+    return {
+      name: gridSettings.name,
+      state,
+      columnsConfig: gridSettings.columnsConfig.sort((a, b) => a.orderIndex - b.orderIndex),
+      gridData: process(this.gridData, state)
+    };
+  }
+
+  // Map date filter if needed
+  private mapDateFilter = (descriptor: any) => {
+    const filters = descriptor.filters || [];
+
+    filters.forEach((filter: any) => {
+      if (filter.filters) {
+        this.mapDateFilter(filter);
+      } else if (filter.field === "FirstOrderedOn" && filter.value) {
+        filter.value = new Date(filter.value);
+      }
+    });
+  };
+    
+  
 }
