@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/core';
  import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
- import { GridDataResult, GridComponent, PageChangeEvent, GridModule, CellClickEvent, CellCloseEvent, SaveEvent } from '@progress/kendo-angular-grid';
+ import { GridDataResult, GridComponent, PageChangeEvent, GridModule, CellClickEvent, CellCloseEvent, SaveEvent, DataStateChangeEvent, ColumnComponent, ColumnBase } from '@progress/kendo-angular-grid';
  import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
  import { CommonModule } from '@angular/common';
  import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -11,7 +11,7 @@ import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild
  import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
  import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
  import { RecordService } from '../../services/lead.service';
-import { orderBy } from '@progress/kendo-data-query';
+import { orderBy, State } from '@progress/kendo-data-query';
  
  @Component({
    selector: 'app-leadmanagement',
@@ -49,14 +49,27 @@ export class LeadmanagementComponent implements OnInit {
   public allData: any[] = [];
   public gridItems: any[] = [];
   public gridView: any = { data: [], total: 0 };
-  public pageSize = 10;
-  public skip = 0;
+  // public pageSize = 10;
+  // public skip = 0;
   public searchText: string = '';
   public sort: any[] = [];
 
   public formGroup!: FormGroup;
   private editedRowIndex: number | null = null;
   public editedItem: any = null;
+  savedPreferences: any[] = []; // Store saved preferences in the dropdown
+  currentPreferences: any = {}; // Store current preferences to save
+  public gridState: State = {
+    skip: 0,
+    take: 10
+  };
+  public columnOrder: string[] = [];
+
+  // public gridView: GridDataResult;
+  public pageSize: number = 10;
+  public skip: number = 0;
+  public preferences: string[] = [];  // Store names of preferences
+  public currentPreference: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -67,6 +80,7 @@ export class LeadmanagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadGridData();
+    this.loadSavedPreferences();
   }
 
   private loadGridData(): void {
@@ -154,8 +168,6 @@ export class LeadmanagementComponent implements OnInit {
   public cancelHandler({ sender }: any): void {
     this.closeEditor(sender);
   }
-
-  
 
   public removeHandler({ dataItem }: any): void {
     const id = dataItem.id;
@@ -257,9 +269,6 @@ export class LeadmanagementComponent implements OnInit {
       this.loadGridData();
     });
   }
-  
-  
-
   public isItemInEditModeInline(dataItem: any): boolean {
     return dataItem?.inEdit;
   }
@@ -275,8 +284,7 @@ export class LeadmanagementComponent implements OnInit {
     }
   }
   public cellClickHandler(event: CellClickEvent): void {
-    if (event.type === 'click') {  // Ignore header clicks etc.
-      // If user single clicks, do nothing
+    if (event.type === 'click') { 
     }
   }
 
@@ -407,5 +415,87 @@ export class LeadmanagementComponent implements OnInit {
     const formGroup = this.createFormGroup(dataItem);
     this.grid.editCell(rowIndex, columnIndex, formGroup);
   }
+  public savePreferences(): void {
+    const name = prompt('Enter a name for the grid state:');
+    if (!name) return;
+
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+
+    if (preferences.some((p: any) => p.name === name)) {
+      alert('Preference name already exists!');
+      return;
+    }
+
+    preferences.push({
+      name,
+      state: this.gridState,
+      columnOrder: this.columnOrder
+    });
+
+    localStorage.setItem('preferences', JSON.stringify(preferences));
+
+    // ✅ Reload names from localStorage
+    this.loadSavedPreferences();
+  }
+
+  private loadSavedPreferences(): void {
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    this.preferences = preferences.map((p: any) => p.name);
+    console.log('Dropdown preferences loaded:', this.preferences);
+  }
+
+  public loadPreference(preferenceName: string): void {
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    const selected = preferences.find((p:any) => p.name === preferenceName);
+    if (!selected) return;
   
+    this.gridState = selected.state;
+    this.skip = this.gridState.skip || 0;
+    this.pageSize = this.gridState.take || 10;
+    this.columnOrder = selected.columnOrder || [];
+  
+    this.reorderColumns(); // ✅ Important
+    this.loadGridData();   // or refresh your grid manually
+  }
+  
+
+  public dataStateChange(state: DataStateChangeEvent): void {
+    this.gridState = state;
+    this.skip = state.skip!;
+    this.pageSize = state.take!;
+    localStorage.setItem('gridState', JSON.stringify(state));
+  }
+
+  public onColumnReorder(): void {
+    // Use setTimeout to let Kendo apply the new order before reading it
+    setTimeout(() => {
+      const columns = this.grid.columns.toArray();
+  
+      this.columnOrder = columns
+        .map((col: any) => col.field || col.title)
+        .filter((name: any) => !!name);
+  
+      console.log('💾 New column order:', this.columnOrder);
+    });
+  }
+  
+  
+
+  public reorderColumns(): void {
+    if (!this.columnOrder.length) return;
+
+    const currentColumns = this.grid.columns.toArray();
+    const ordered = this.columnOrder
+      .map(name =>
+        currentColumns.find(c =>
+          c instanceof ColumnComponent
+            ? c.field === name || c.title === name
+            : c.title === name
+        )
+      )
+      .filter(col => !!col);
+
+    this.grid.columns.reset(ordered);
+    this.grid.columns.notifyOnChanges();
+  }
 }

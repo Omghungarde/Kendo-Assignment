@@ -45,10 +45,18 @@
       <kendo-dropdownlist [data]="listItems" value="All Leads"></kendo-dropdownlist>
     </kendo-label>
 
-    <kendo-label>
-      <kendo-dropdownlist [data]="searchPreference" placeholder="Select Saved preference"></kendo-dropdownlist>
-    </kendo-label>
+    <kendo-label for="preferences-dropdown">
+     
+      <kendo-dropdownlist
+  [data]="preferences"
+  [(ngModel)]="currentPreference"
+  [valuePrimitive]="true"
+  [defaultItem]="'Select Preference'"
+  (valueChange)="loadPreference($event)">
+</kendo-dropdownlist>
 
+
+    </kendo-label>
     <div class="search-group">
       <kendo-textbox
       #searchBox
@@ -85,7 +93,7 @@
 
     <button class="create-btn-div">Clear Filters</button>
     <button class="create-btn-div">Bulk Edit</button>
-    <button class="create-btn-div">Save Preference</button>
+    <button class="create-btn-div"(click)="savePreferences()">Save Preference</button>
   </div>
 
   <kendo-grid
@@ -107,14 +115,11 @@
   (save)="saveHandler($event)"
   (cancel)="cancelHandler($event)"
   (cellClick)="cellClickHandler($event)"
-  (dblclick)="handleDblClick($event)"  
+  (dblclick)="handleDblClick($event)"
+  (dataStateChange)="dataStateChange($event)"
+  (columnReorder)="onColumnReorder()"  
 >
-
-
-  <!-- Checkbox Column -->
   <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
-
-  <!-- Custom Action Split Button -->
   <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
     <ng-template kendoGridCellTemplate let-dataItem>
       <kendo-splitbutton *ngIf="!isItemInEditMode(dataItem)" [data]="listItems" class="action_button">
@@ -122,23 +127,13 @@
       </kendo-splitbutton>
     </ng-template>
   </kendo-grid-column>
-
-  <!-- Editable Fields -->
   <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
-
   <kendo-grid-column field="lastName" title="Last Name" [width]="150" [editable]="true">
   </kendo-grid-column>
-
-  <kendo-grid-column field="firstName" title="First Name" [width]="150" [editable]="true">
-    
+  <kendo-grid-column field="firstName" title="First Name" [width]="150" [editable]="true"> 
   </kendo-grid-column>
-  
   <kendo-grid-column field="email" title="Email" [width]="200" [editable]="true">
-    
   </kendo-grid-column>
-  
-
-  <!-- Non-editable Fields -->
   <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
 </kendo-grid>
 
@@ -195,3 +190,4 @@
 
   <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
   <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date" [width]="150"></kendo-grid-column> -->
+                                                                                                                                                                                                                         
