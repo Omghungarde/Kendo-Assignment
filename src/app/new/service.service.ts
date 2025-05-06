@@ -64,29 +64,38 @@ const getCircularReplacer = () => {
 })
 export class ServiceService {
   // 5. Replace hardcoded URL with API base path from db.json
-  private apiUrl = 'http://localhost:3000/gridSettings';
+  private apiUrl = 'http://localhost:3000/data';
 
   // 6. Inject HttpClient
   constructor(private http: HttpClient) {}
 
   // 7. Generic method to get data from localStorage
-  public getFromLocal<T>(token: string): T | null {
-    const settings = localStorage.getItem(token);
-    return settings ? JSON.parse(settings) : null;
-  }
+  
 
   // 8. Generic method to save data to localStorage
-  public saveToLocal<T>(token: string, value: T): void {
-    localStorage.setItem(token, JSON.stringify(value, getCircularReplacer()));
+  saveToLocal(key: string, data: any): void {
+    localStorage.setItem(key, JSON.stringify(data));
   }
 
   // 9. Call the API to fetch grid settings from db.json
-  public fetchGridSettings(): Observable<GridSettings> {
-    return this.http.get<GridSettings>(this.apiUrl);
+  fetchGridSettings(): Observable<any> {
+    return this.http.get<any>('http://localhost:3000/gridSettings');
   }
 
   // 10. (Optional) Save grid settings to mock API
   public saveGridSettingsToServer(settings: GridSettings): Observable<GridSettings> {
     return this.http.post<GridSettings>(this.apiUrl, settings);
+  }
+
+
+
+
+  fetchGridData(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
+  }
+
+  getFromLocal<T>(key: string): T | null{
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
   }
 }

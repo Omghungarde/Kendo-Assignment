@@ -31,10 +31,10 @@
       <kendo-grid-column
         [field]="col.field"
         [title]="col.title"
-        [width]="col.width"
-        [filter]="col.filter"
-        [filterable]="col.filterable"
-        [hidden]="col.hidden"
+        [width]="col.width ?? 100"
+        [filter]="col.filter ?? 'text'"
+        [filterable]="col.filterable ?? false"
+        [hidden]="col.hidden ?? false"
         [format]="col.format"
       >
       </kendo-grid-column>

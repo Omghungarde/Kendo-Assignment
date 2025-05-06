@@ -9,13 +9,15 @@ export interface GridSettings {
 export interface ColumnSettings {
     field: string;
     title: string;
-    filter: "text" | "numeric" | "date" | "boolean";
+    width?: number;
     format?: string;
-    width: number;
-    filterable: boolean;
+    filter?: 'text' | 'numeric' | 'boolean' | 'date';
+    filterable?: boolean;
+    hidden?: boolean;
     orderIndex?: number;
-    hidden: boolean;
+    editable?: boolean; // ✅ Add this line
   }
+  
 
   export const sampleProducts = [
     {
