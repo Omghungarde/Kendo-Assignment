@@ -1,0 +1,44 @@
+
+<kendo-grid
+      #grid
+      [data]="gridSettings.gridData"
+      [resizable]="true"
+      [reorderable]="true"
+      [columnMenu]="true"
+      [pageable]="true"
+      [pageSize]="gridSettings.state.take"
+      [skip]="gridSettings.state.skip"
+      [sortable]="true"
+      [sort]="gridSettings.state.sort"
+      [filterable]="true"
+      [filter]="gridSettings.state.filter"
+      [groupable]="true"
+      [group]="gridSettings.state.group"
+      (dataStateChange)="dataStateChange($event)"
+    >
+      <ng-template kendoGridToolbarTemplate>
+        <button kendoButton (click)="saveGridSettings(grid)">
+          Save current state
+        </button>
+        @if (savedStateExists) {
+            <button kendoButton (click)="loadSavedState()">
+                Load saved state
+              </button>
+              
+        }
+      </ng-template>
+      @for (col of gridSettings.columnsConfig; track col) {
+      <kendo-grid-column
+        [field]="col.field"
+        [title]="col.title"
+        [width]="col.width"
+        [filter]="col.filter"
+        [filterable]="col.filterable"
+        [hidden]="col.hidden"
+        [format]="col.format"
+      >
+      </kendo-grid-column>
+      }
+    </kendo-grid>
+
+    
