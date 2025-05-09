@@ -1,0 +1,397 @@
+.lead-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .lead-left {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  
+  .title {
+    margin: 0;
+    font-size: 1.5rem;
+    color:#9acd32;
+  }
+  
+  .subtitle {
+    margin: 0;
+    font-size: 1rem;
+    color: yellowgreen;
+  }
+  
+  .lead-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  .board-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  /* Style the checkbox */
+  .board-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: yellowgreen; /* Works in modern browsers */
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  /* Optional: Style label text color when checked */
+  .board-checkbox input[type="checkbox"]:checked + span {
+    color: yellowgreen;
+  }
+  
+  /* Reusable button base */
+.create-btn,
+.export-btn {
+  background-color: yellowgreen;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.create-btn:hover,
+.export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Optional active click effect */
+.create-btn:active,
+.export-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Export icon spacing */
+.export-btn i {
+  margin-right: 0.2rem;
+}
+@media (max-width: 320px) {
+    .lead-toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  
+    .lead-left,
+    .lead-right {
+      width: 100%;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+  
+    .lead-right {
+      justify-content: flex-start;
+      gap: 0.75rem;
+    }
+  
+    .create-btn,
+    .export-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  
+    .board-checkbox {
+      width: 100%;
+    }
+  }
+  
+  .inner{
+    border: 2px solid yellowgreen;
+    border-radius: 10px;
+  }
+  /* Add to your CSS */
+
+.lead-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    justify-content: flex-start;
+  }
+  
+  /* Allow elements to grow and stack better on small screens */
+  /* .lead-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; 
+    align-items: center;
+  } */
+  
+  .lead-filters > * {
+    flex: 0 0 auto;
+    min-width: 160px; 
+  }
+  .search-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 300px;
+    flex: 1 1 200px;
+  }
+  
+  .search-group input[type="search"] {
+    flex: 1;
+    border: none;
+    padding: 0.5rem;
+    outline: none;
+    font-size: 14px;
+  }
+  
+  .search-btn {
+    background-color: yellowgreen;
+    border: none;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .custom-pill-toggle {
+    display: flex;
+    background: #004080; /* Bluish background */
+    border-radius: 999px;
+    padding: 0.1rem;
+    width: fit-content;
+    gap: 0.2rem;
+    /* flex: none; */
+  }
+  
+  .pill-option {
+    padding: 0.3rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 500;
+    color: white;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    
+  }
+  
+  .pill-option.active {
+    background-color: yellowgreen;
+    color: white;
+  }
+  
+  
+  
+  /* Buttons grow responsively */
+  .create-btn {
+    white-space: nowrap;
+    flex: 1 1 auto;
+    min-width: 150px;
+  }
+  
+  /* Responsive media query */
+  @media (max-width: 768px) {
+    .lead-filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .lead-filters > * {
+      width: 100%;
+    }
+  
+    .search-group {
+      max-width: 100%;
+    }
+  
+    .switch-group {
+      justify-content: space-between;
+    }
+  }
+  .create-btn-div {
+    background-color: yellowgreen;
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+    height: 36px;
+    min-width: 120px;
+    cursor: pointer;
+    /* transition: transform 0.2s ease, box-shadow 0.2s ease; */
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); */
+
+  }
+  
+  /* Optional icon spacing if you're using icons inside */
+  .create-btn-div i {
+    margin-right: 0.4rem;
+  }
+  ::ng-deep .k-grid-header th.k-header {
+    background-color: #004080 !important;      
+    color: #ffffff;                 
+    font-weight: bold;   
+    text-align: center;       
+    border-bottom: 2px solid #444; 
+    font-size: 14px;              
+  }
+  ::ng-deep .k-grid .actions-header .k-link {
+    background-color: #004080 !important;
+    color: white !important;
+    font-weight: bold;
+    text-align: center;
+  }
+  .action_button{
+  background-color: yellowgreen;
+  color: white;
+  border: none;
+  /* padding: 0.2rem 0.4rem; */
+  border-radius: 5px;
+  cursor: pointer;
+  /* display: flex; */
+  align-items: center;
+  /* gap: 0.4rem; */
+  }
+  ::ng-deep .k-grid {
+    font-size: 13px; /* Slimmer font */
+    line-height: 1.2;
+  }
+  
+  ::ng-deep .k-grid td,
+  ::ng-deep .k-grid th {
+    padding: 6px 10px; /* Reduced cell padding */
+  }
+  
+  ::ng-deep .k-grid-header .k-header {
+    white-space: nowrap;
+  }
+  
+  ::ng-deep .k-button.action_button {
+    /* padding: 2px 6px; */
+    font-size: 12px;
+    background-color: yellowgreen;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    /* display: flex; */
+    align-items: center;
+    /* gap: 4px; */
+  }
+  
+  ::ng-deep .k-grid .k-checkbox-label {
+    margin: 0;
+  }
+  ::ng-deep .k-grid tr {
+    height: 32px !important; /* Reduce row height */
+  }
+  
+  ::ng-deep .k-grid td,
+  ::ng-deep .k-grid th {
+    padding: 4px 8px !important; /* Reduce padding inside cells */
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  
+  ::ng-deep .k-grid .k-button {
+    font-size: 12px;
+    padding: 2px 6px;
+    background-color: yellowgreen;
+    border: none;
+  }
+  ::ng-deep .k-split-button-arrow{
+    background-color: yellowgreen;
+    border: none;
+    padding: 0%;
+  }
+  ::ng-deep .k-split-button-arrow:hover{
+    background-color: rgb(0, 96, 223);
+    border: none;
+    padding: 0%;
+  }
+  ::ng-deep .k-grid .k-command-cell > .k-button {
+    margin-inline-end: var(--kendo-spacing-2, 0.5rem);
+    vertical-align: middle;
+    background-color: rgb(23, 91, 240);
+    color: whitesmoke;
+}
+::ng-deep .k-column-title{
+  color: white;
+}
+::ng-deep .k-button .k-primary{
+  background-color: blueviolet;
+}
+
+.k-button {
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.k-button.k-primary {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  gap: 0.4rem;
+}
+
+.k-button.k-danger {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+}
+
+.k-button.k-success {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+}
+
+.k-button:hover {
+  opacity: 0.9;
+}
+::ng-serve .k-grid .k-grid-header .k-cell-inner > .k-link > .k-sort-icon .k-icon {
+ 
+  color: red;
+}
+/* .search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.search-btn {
+  background-color: var(--primary, #1976d2);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+} */

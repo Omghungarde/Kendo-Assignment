@@ -1,43 +1,3 @@
-// import { Injectable } from '@angular/core';
-// import { GridSettings } from './interface2';
-// import { HttpClient } from '@angular/common/http';
-// import { Observable } from 'rxjs';
-
-
-
-// const getCircularReplacer = () => {
-//   const seen = new WeakSet();
-//   return (_key: any, value: any) => {
-//     if (typeof value === "object" && value !== null) {
-//       if (seen.has(value)) {
-//         return;
-//       }
-//       seen.add(value);
-//     }
-//     return value;
-//   };
-// };
-// @Injectable({
-//   providedIn: 'root'
-// })
-// export class ServiceService {
-//   private apiUrl = 'http://localhost:3000/gridSettings'; // adjust based on db.json
-
-//   constructor(private http: HttpClient) {}
-
-//   public getFromLocal<T>(token: string): T | null {
-//     const settings = localStorage.getItem(token);
-//     return settings ? JSON.parse(settings) : null;
-//   }
-
-//   public saveToLocal<T>(token: string, value: T): void {
-//     localStorage.setItem(token, JSON.stringify(value));
-//   }
-
-//   public fetchGridSettings(): Observable<GridSettings> {
-//     return this.http.get<GridSettings>(this.apiUrl);
-//   }
-// }
 // 1. Import necessary core and HTTP modules
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -63,32 +23,21 @@ const getCircularReplacer = () => {
   providedIn: 'root',
 })
 export class ServiceService {
-  // 5. Replace hardcoded URL with API base path from db.json
+
   private apiUrl = 'http://localhost:3000/data';
-
-  // 6. Inject HttpClient
   constructor(private http: HttpClient) {}
-
-  // 7. Generic method to get data from localStorage
   
-
-  // 8. Generic method to save data to localStorage
   saveToLocal(key: string, data: any): void {
     localStorage.setItem(key, JSON.stringify(data));
   }
 
-  // 9. Call the API to fetch grid settings from db.json
   fetchGridSettings(): Observable<any> {
     return this.http.get<any>('http://localhost:3000/gridSettings');
   }
 
-  // 10. (Optional) Save grid settings to mock API
   public saveGridSettingsToServer(settings: GridSettings): Observable<GridSettings> {
     return this.http.post<GridSettings>(this.apiUrl, settings);
   }
-
-
-
 
   fetchGridData(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
@@ -97,5 +46,18 @@ export class ServiceService {
   getFromLocal<T>(key: string): T | null{
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : null;
+  }
+
+  getAll(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
+  }
+
+  update(recordId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${recordId}`, data);
+  }
+
+  updateData(dataItem: any): Observable<any> {
+    const url = `http://localhost:3000/data/${dataItem.id}`; // Assuming `id` is the unique identifier
+    return this.http.put(url, dataItem);
   }
 }

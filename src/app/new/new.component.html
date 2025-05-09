@@ -1,4 +1,3 @@
-
 <kendo-grid
       #grid
       [data]="gridSettings.gridData"
@@ -15,6 +14,9 @@
       [groupable]="true"
       [group]="gridSettings.state.group"
       (dataStateChange)="dataStateChange($event)"
+      (cellClick)="cellClickHandler($event)"
+      (dblclick)="onDblClick()"
+      (cellClose)="cellCloseHandler($event)"
     >
       <ng-template kendoGridToolbarTemplate>
         <button kendoButton (click)="saveGridSettings(grid)">
@@ -36,9 +38,17 @@
         [filterable]="col.filterable ?? false"
         [hidden]="col.hidden ?? false"
         [format]="col.format"
+        [editable]="true"
+        (dblclick)="onCellDoubleClick($event)"
       >
+      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
+        <input
+          kendoTextBox
+          [formControl]="formGroup.get(col.field)"
+          [placeholder]="col.title"
+        />
+      </ng-template>
       </kendo-grid-column>
       }
     </kendo-grid>
 
-    
