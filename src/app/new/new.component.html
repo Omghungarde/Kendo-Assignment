@@ -52,3 +52,26 @@
       }
     </kendo-grid>
 
+    <div class="preferences-container">
+        <button kendoButton (click)="saveGridSettings(grid)">Save Preference</button>
+        <select id="preferenceName" [(ngModel)]="selectedPreference" (change)="loadSavedState()">
+          <option *ngFor="let preference of savedPreferences" [value]="preference">
+            {{ preference }}
+          </option>
+        </select>
+      </div>
+
+      <kendo-dialog *ngIf="isPreferencePopupOpen" (close)="closePreferencePopup()">
+        <kendo-dialog-titlebar>
+          Save Preference
+        </kendo-dialog-titlebar>
+        <div class="popup-content">
+          <label for="preferenceInput">Preference Name:</label>
+          <input id="preferenceInput" [(ngModel)]="newPreferenceName" />
+        </div>
+        <kendo-dialog-actions>
+          <button kendoButton (click)="saveNewPreference()">Save</button>
+          <button kendoButton (click)="closePreferencePopup()">Cancel</button>
+        </kendo-dialog-actions>
+      </kendo-dialog>
+

@@ -5,12 +5,14 @@ import { ColumnSettings, GridSettings } from '../new/interface2';
 import { process, State } from '@progress/kendo-data-query';
 import { ServiceService } from '../new/service.service';
 import { RouterModule } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { DialogsModule } from '@progress/kendo-angular-dialog';
 
 @Component({
   selector: 'app-new',
   standalone: true,
-  imports: [KENDO_GRID, RouterModule, ReactiveFormsModule],
+  imports: [KENDO_GRID, RouterModule, ReactiveFormsModule, FormsModule, CommonModule, DialogsModule],
   templateUrl: './new.component.html',
   styleUrl: './new.component.css'
 })
@@ -46,6 +48,10 @@ export class NewComponent implements OnInit {
 
   public editField = 'inEdit';
   public cellArgs!: CellClickEvent;
+  public savedPreferences: string[] = [];
+  public selectedPreference: string = '';
+  public isPreferencePopupOpen: boolean = false;
+  public newPreferenceName: string = '';
 
   constructor(private persistingService: ServiceService, private fb: FormBuilder, private elRef: ElementRef) {}
 
@@ -57,6 +63,7 @@ export class NewComponent implements OnInit {
     }
 
     this.loadGridData();
+    this.refreshSavedPreferences(); // Load saved preferences on initialization
   }
 
   public get savedStateExists(): boolean {
@@ -77,6 +84,9 @@ export class NewComponent implements OnInit {
   }
 
   public saveGridSettings(grid: GridComponent): void {
+    const name = prompt('Enter a name for the grid state:');
+    if (!name) return;
+
     const gridConfig: GridSettings = {
       state: this.gridSettings.state,
       gridData: this.gridSettings.gridData,
@@ -92,15 +102,26 @@ export class NewComponent implements OnInit {
       }))
     };
 
-    this.persistingService.saveToLocal('gridSettings', gridConfig);
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    preferences.push({ name, gridConfig });
+    localStorage.setItem('preferences', JSON.stringify(preferences));
+
+    this.refreshSavedPreferences();
   }
 
   public loadSavedState(): void {
-    const savedSettings = this.persistingService.getFromLocal<GridSettings>('gridSettings');
-    if (savedSettings) {
-      this.gridSettings = this.mapGridSettings(savedSettings);
-      this.loadGridData();
-    }
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    const selected = preferences.find((p: any) => p.name === this.selectedPreference);
+    if (!selected) return;
+
+    this.gridSettings.state = selected.gridConfig.state;
+    this.gridSettings.columnsConfig = selected.gridConfig.columnsConfig;
+
+    // Apply column settings to the grid
+    const gridColumns = this.gridSettings.columnsConfig.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+    this.gridSettings.columnsConfig = gridColumns;
+
+    this.loadGridData(); // Reload the grid data based on the state
   }
 
   public mapGridSettings(gridSettings: GridSettings): GridSettings {
@@ -153,5 +174,79 @@ export class NewComponent implements OnInit {
         }
       );
     }
+  }
+
+  public savePreference(): void {
+    if (this.selectedPreference) {
+      console.log(`Saving preference: ${this.selectedPreference}`);
+      // Logic to save the preference
+      this.savedPreferences.push(this.selectedPreference);
+    }
+  }
+
+  public openPreferencePopup(): void {
+    this.isPreferencePopupOpen = true;
+  }
+
+  public closePreferencePopup(): void {
+    this.isPreferencePopupOpen = false;
+    this.newPreferenceName = '';
+  }
+
+  public saveNewPreference(): void {
+    if (this.newPreferenceName) {
+      this.savedPreferences.push(this.newPreferenceName);
+      console.log(`Saved preference: ${this.newPreferenceName}`);
+      this.closePreferencePopup();
+    }
+  }
+
+  public loadPreference(): void {
+    const selectedPreference = this.savedPreferences.find(
+      (pref) => pref === this.selectedPreference
+    );
+    if (selectedPreference) {
+      console.log(`Loading preference: ${selectedPreference}`);
+      // Logic to load grid settings for the selected preference
+    }
+  }
+
+  public savePreferences(): void {
+    const name = prompt('Enter a name for the grid state:');
+    if (!name) return;
+
+    if (!this.gridSettings.columnsConfig?.length) {
+      console.warn('❗ Column config is empty, cannot save.');
+      return;
+    }
+
+    const preference = {
+      name,
+      state: this.gridSettings.state,
+      columnsConfig: this.gridSettings.columnsConfig
+    };
+
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    preferences.push(preference);
+    localStorage.setItem('preferences', JSON.stringify(preferences));
+
+    this.refreshSavedPreferences(); // Refresh the dropdown options after saving a new preference
+  }
+
+  public loadSavedPreference(name: string): void {
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    const selected = preferences.find((p: any) => p.name === name);
+    if (!selected) return;
+
+    this.gridSettings.state = selected.state;
+    this.gridSettings.columnsConfig = selected.columnsConfig;
+
+    this.loadGridData(); // Load the grid data based on the state
+  }
+
+  private refreshSavedPreferences(): void {
+    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+    this.savedPreferences = preferences.map((p: any) => p.name); // Map saved preference names
+    console.log('Saved preferences loaded:', this.savedPreferences);
   }
 }
