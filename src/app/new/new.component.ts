@@ -244,6 +244,40 @@ export class NewComponent implements OnInit {
     this.loadGridData(); // Load the grid data based on the state
   }
 
+  public clearPreference(): void {
+    // Reset the grid settings to their default state
+    this.gridSettings = {
+      state: {
+        skip: 0,
+        take: 10,
+        filter: { logic: 'and', filters: [] },
+        group: []
+      },
+      gridData: { data: [], total: 0 },
+      columnsConfig: [
+        { field: 'recordId', title: 'Record ID', width: 150, editable: false, orderIndex: 0 },
+        { field: 'lastName', title: 'Last Name', width: 200, orderIndex: 1 },
+        { field: 'firstName', title: 'First Name', width: 200, editable: true, orderIndex: 2 },
+        { field: 'email', title: 'Email', width: 250, editable: true, orderIndex: 3 },
+        { field: 'phoneType', title: 'Phone Type', width: 150, editable: true, orderIndex: 4 },
+        { field: 'leadId', title: 'Lead ID', width: 200, editable: true, orderIndex: 5 },
+        { field: 'appointmentType', title: 'Appointment Type', width: 180, editable: true, orderIndex: 6 },
+        { field: 'bookingAgency', title: 'Booking Agency', width: 180, editable: true, orderIndex: 7 },
+        { field: 'assignedDate', title: 'Assigned Date', width: 180, editable: true, orderIndex: 8 },
+        { field: 'salesRep', title: 'Sales Rep', width: 180, editable: true, orderIndex: 9 },
+        { field: 'coordinator', title: 'Coordinator', width: 180, editable: true, orderIndex: 10 },
+        { field: 'syncToMobile', title: 'Sync To Mobile', width: 150, editable: true, orderIndex: 11 },
+        { field: 'createdSource', title: 'Created Source', width: 180, editable: true, orderIndex: 12 },
+        { field: 'mobileSyncStatus', title: 'Mobile Sync Status', width: 180, editable: true, orderIndex: 13 },
+        { field: 'effectiveDate', title: 'Effective Date', width: 180, editable: true, orderIndex: 14 },
+        { field: 'validThrough', title: 'Valid Through', width: 180, editable: true, orderIndex: 15 }
+      ]
+    };
+
+    this.selectedPreference = ''; // Clear the dropdown selection
+    this.loadGridData(); // Reload the grid data to reflect the default state
+  }
+
   private refreshSavedPreferences(): void {
     const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
     this.savedPreferences = preferences.map((p: any) => p.name); // Map saved preference names

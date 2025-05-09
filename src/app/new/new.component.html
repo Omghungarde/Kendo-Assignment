@@ -59,6 +59,7 @@
             {{ preference }}
           </option>
         </select>
+        <button kendoButton (click)="clearPreference()">Clear Preference</button>
       </div>
 
       <kendo-dialog *ngIf="isPreferencePopupOpen" (close)="closePreferencePopup()">
