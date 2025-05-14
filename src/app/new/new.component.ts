@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ChangeDetectorRef, ViewChild, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CellClickEvent, GridComponent } from '@progress/kendo-angular-grid';
 import { KENDO_GRID } from '@progress/kendo-angular-grid';
 import { ColumnSettings, GridSettings } from '../new/interface2';
@@ -8,15 +8,19 @@ import { RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { ExcelExportData, ExcelExportModule } from '@progress/kendo-angular-excel-export';
 
 @Component({
   selector: 'app-new',
   standalone: true,
-  imports: [KENDO_GRID, RouterModule, ReactiveFormsModule, FormsModule, CommonModule, DialogsModule],
+  imports: [KENDO_GRID, RouterModule, ReactiveFormsModule, FormsModule, CommonModule, DialogsModule, ExcelExportModule],
   templateUrl: './new.component.html',
-  styleUrl: './new.component.css'
+  styleUrl: './new.component.css',
+  schemas: [NO_ERRORS_SCHEMA]
 })
 export class NewComponent implements OnInit {
+
+  @ViewChild('grid', { static: true }) grid!: GridComponent;
 
   public gridSettings: GridSettings = {
     state: {
@@ -303,5 +307,13 @@ export class NewComponent implements OnInit {
 
     this.gridSettings.gridData = process(filteredData, this.gridSettings.state);
     this.cdr.detectChanges(); // Trigger change detection
+  }
+
+  public exportToExcel(): void {
+    if (this.grid) {
+      this.grid.saveAsExcel();
+    } else {
+      console.error('Grid reference is not available.');
+    }
   }
 }

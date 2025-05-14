@@ -17,11 +17,12 @@
       (cellClick)="cellClickHandler($event)"
       (dblclick)="onDblClick()"
       (cellClose)="cellCloseHandler($event)"
-    >
+    ><kendo-grid-excel fileName="GridData.xlsx"></kendo-grid-excel>
       <ng-template kendoGridToolbarTemplate>
         <button kendoButton (click)="saveGridSettings(grid)">
           Save current state
         </button>
+        <button kendoButton (click)="exportToExcel()">Export to Excel</button>
         @if (savedStateExists) {
             <button kendoButton (click)="loadSavedState()">
                 Load saved state
@@ -29,6 +30,7 @@
               
         }
       </ng-template>
+      
       @for (col of gridSettings.columnsConfig; track col) {
       <kendo-grid-column
         [field]="col.field"

@@ -1,52 +1,52 @@
 import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnInit, ViewChild } from '@angular/core';
- import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
- import { GridDataResult, GridComponent, PageChangeEvent, GridModule, CellClickEvent, CellCloseEvent, SaveEvent, DataStateChangeEvent, ColumnComponent, ColumnBase } from '@progress/kendo-angular-grid';
- import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
- import { CommonModule } from '@angular/common';
- import { HttpClient, HttpClientModule } from '@angular/common/http';
- import { Button, KENDO_BUTTON, KENDO_SPLITBUTTON } from '@progress/kendo-angular-buttons';
- import { KENDO_DROPDOWNLIST } from '@progress/kendo-angular-dropdowns';
- import { KENDO_RATING, KENDO_SWITCH, KENDO_TEXTBOX } from '@progress/kendo-angular-inputs';
- import { LabelModule } from '@progress/kendo-angular-label';
- import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
- import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
- import { RecordService } from '../../services/lead.service';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
+import { GridDataResult, GridComponent, PageChangeEvent, GridModule, CellClickEvent, CellCloseEvent, SaveEvent, DataStateChangeEvent, ColumnComponent, ColumnBase } from '@progress/kendo-angular-grid';
+import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
+import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Button, KENDO_BUTTON, KENDO_SPLITBUTTON } from '@progress/kendo-angular-buttons';
+import { KENDO_DROPDOWNLIST } from '@progress/kendo-angular-dropdowns';
+import { KENDO_RATING, KENDO_SWITCH, KENDO_TEXTBOX } from '@progress/kendo-angular-inputs';
+import { LabelModule } from '@progress/kendo-angular-label';
+import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
+import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
+import { RecordService } from '../../services/lead.service';
 import { KENDO_GRID } from '@progress/kendo-angular-grid';
 import { ColumnSettings, GridSettings } from '../../new/interface2';
 import { process, State } from '@progress/kendo-data-query';
 import { ServiceService } from '../../new/service.service';
 import { RouterModule } from '@angular/router';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { ExcelExportData, ExcelExportModule } from '@progress/kendo-angular-excel-export';
 
- 
- @Component({
-   selector: 'app-leadmanagement',
-   standalone: true,
-   imports: [
-     CommonModule,
-     GridModule,
-     ReactiveFormsModule,
-     KENDO_EXCELEXPORT,
-     KENDO_DROPDOWNLIST,
-     KENDO_TEXTBOX,
-     KENDO_SWITCH,
-     KENDO_CHART,
-     KENDO_SPARKLINE,
-     KENDO_RATING,
-     KENDO_BUTTON,
-     KENDO_SPLITBUTTON,
-     KENDO_DIALOG,
-     LabelModule,
-     FormsModule
-   ],
-   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-   templateUrl: './leadmanagement.component.html',
-   styleUrls: ['./leadmanagement.component.css']
- })
- // ... [unchanged imports]
-
+@Component({
+  selector: 'app-leadmanagement',
+  standalone: true,
+  imports: [
+    CommonModule,
+    GridModule,
+    ReactiveFormsModule,
+    KENDO_EXCELEXPORT,
+    KENDO_DROPDOWNLIST,
+    KENDO_TEXTBOX,
+    KENDO_SWITCH,
+    KENDO_CHART,
+    KENDO_SPARKLINE,
+    KENDO_RATING,
+    KENDO_BUTTON,
+    KENDO_SPLITBUTTON,
+    KENDO_DIALOG,
+    LabelModule,
+    FormsModule,
+    ExcelExportModule,
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  templateUrl: './leadmanagement.component.html',
+  styleUrls: ['./leadmanagement.component.css']
+})
 export class LeadmanagementComponent implements OnInit {
-  @ViewChild('excelExport', { static: false }) excelExport!: ExcelExportComponent;
+  
+  @ViewChild('grid', { static: true }) grid!: GridComponent;
   public listItems: string[] = ['All Leads', 'Pending', 'Completed'];
   public gridSettings: GridSettings = {
       state: {
@@ -84,6 +84,8 @@ export class LeadmanagementComponent implements OnInit {
     public newPreferenceName: string = '';
     public searchQuery: string = '';
     private originalGridData: any[] = [];
+    public isNonIntl: boolean = false;
+
     constructor(private persistingService: ServiceService, private fb: FormBuilder, private elRef: ElementRef) {}
   
     ngOnInit(): void {
@@ -315,10 +317,6 @@ export class LeadmanagementComponent implements OnInit {
       this.savedPreferences = preferences.map((p: any) => p.name); // Map saved preference names
       console.log('Saved preferences loaded:', this.savedPreferences);
     }
-    
-    public exportToExcel(): void {
-    this.excelExport.save();
-  }
 
   public searchGrid(): void {
     if (!this.searchQuery.trim()) {
@@ -334,5 +332,28 @@ export class LeadmanagementComponent implements OnInit {
     });
 
     this.gridSettings.gridData = process(filteredData, this.gridSettings.state);
+  }
+  toggleNonIntl(value: boolean): void {
+    this.isNonIntl = value;
+  }
+  public exportToExcel(): void {
+    if (this.grid) {
+      this.grid.saveAsExcel();
+    } else {
+      console.error('Grid reference is not available.');
+    }
+  }
+
+
+  public saveNewRow(dataItem: any): void {
+    // Save the new row to the JSON (mock implementation)
+    this.persistingService.updateData(dataItem).subscribe(
+      (response) => {
+        console.log('New row saved:', response);
+      },
+      (error) => {
+        console.error('Error saving new row:', error);
+      }
+    );
   }
 }

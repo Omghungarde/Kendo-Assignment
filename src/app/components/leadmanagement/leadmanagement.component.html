@@ -11,28 +11,7 @@
     <button class="export-btn" kendoButton type="button" (click)="exportToExcel()">
       <i class="fas fa-download"></i> Export To Excel
     </button>
-    <!-- <kendo-excelexport #excelExport [data]="gridItems" fileName="LeadManagementData.xlsx">
-
-      <kendo-excelexport-column field="recordId" title="Record Id"></kendo-excelexport-column>
-      <kendo-excelexport-column field="lastName" title="Last Name"></kendo-excelexport-column>
-      <kendo-excelexport-column field="firstName" title="First Name"></kendo-excelexport-column>
-      <kendo-excelexport-column field="email" title="Email"></kendo-excelexport-column>
-      <kendo-excelexport-column field="phoneType" title="Primary Phone Type"></kendo-excelexport-column>
-      <kendo-excelexport-column field="leadId" title="LMP Lead ID"></kendo-excelexport-column>
-      <kendo-excelexport-column field="appointmentType" title="Appointment Type"></kendo-excelexport-column>
-      <kendo-excelexport-column field="bookingAgency" title="Booking Agency"></kendo-excelexport-column>
-      <kendo-excelexport-column field="assignedDate" title="Assigned Date"></kendo-excelexport-column>
-      <kendo-excelexport-column field="salesRep" title="Sales Rep"></kendo-excelexport-column>
-      <kendo-excelexport-column field="coordinator" title="Coordinator"></kendo-excelexport-column>
-      <kendo-excelexport-column field="syncToMobile" title="Sync to Mobile"></kendo-excelexport-column>
-      <kendo-excelexport-column field="createdSource" title="Created Source"></kendo-excelexport-column>
-      <kendo-excelexport-column field="mobileSyncStatus" title="Mobile Sync Status"></kendo-excelexport-column>
-      <kendo-excelexport-column field="effectiveDate" title="Effective Date"></kendo-excelexport-column>
-      <kendo-excelexport-column field="validThrough" title="Valid Through"></kendo-excelexport-column>
-
-    </kendo-excelexport> -->
-
-    <!-- <button class="create-btn" kendoButton (click)="addNewLead()">Create</button> -->
+    
     <button class="create-btn" kendoButton>Create</button>
 
   </div>
@@ -84,22 +63,22 @@
       </button>
     </div> -->
 
-    <!-- <div class="custom-pill-toggle">
+    <div class="custom-pill-toggle">
       <span class="pill-option" [class.active]="!isNonIntl" (click)="isNonIntl = false">
         Intl
       </span>
       <span class="pill-option" [class.active]="isNonIntl" (click)="isNonIntl = true">
         Non-Intl
       </span>
-    </div> -->
-    <div class="custom-pill-toggle">
+    </div>
+    <!-- <div class="custom-pill-toggle">
       <span class="pill-option">
         Intl
       </span>
       <span class="pill-option">
         Non-Intl
       </span>
-    </div>
+    </div> -->
 
     <button class="create-btn-div"(click)="clearPreference()">Clear Filters</button>
     <button class="create-btn-div">Bulk Edit</button>
@@ -134,7 +113,9 @@
       (dblclick)="onDblClick()"
       (cellClose)="cellCloseHandler($event)"
     >
+
       @for (col of gridSettings.columnsConfig; track col) {
+        
       <kendo-grid-column
         [field]="col.field"
         [title]="col.title"
@@ -210,4 +191,3 @@
 
   <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
   <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date" [width]="150"></kendo-grid-column> -->
-                                                                                                                                                                                                                         
