@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnInit, ViewChild } from '@angular/core';
  import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
  import { GridDataResult, GridComponent, PageChangeEvent, GridModule, CellClickEvent, CellCloseEvent, SaveEvent, DataStateChangeEvent, ColumnComponent, ColumnBase } from '@progress/kendo-angular-grid';
  import { ExcelExportComponent, KENDO_EXCELEXPORT } from '@progress/kendo-angular-excel-export';
@@ -11,8 +11,13 @@ import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild
  import { KENDO_CHART, KENDO_SPARKLINE } from '@progress/kendo-angular-charts';
  import { KENDO_DIALOG } from '@progress/kendo-angular-dialog';
  import { RecordService } from '../../services/lead.service';
-import { orderBy, State,process } from '@progress/kendo-data-query';
-import { GridSettings, GridSettingsWithData } from '../../interface';
+import { KENDO_GRID } from '@progress/kendo-angular-grid';
+import { ColumnSettings, GridSettings } from '../../new/interface2';
+import { process, State } from '@progress/kendo-data-query';
+import { ServiceService } from '../../new/service.service';
+import { RouterModule } from '@angular/router';
+import { DialogsModule } from '@progress/kendo-angular-dialog';
+
  
  @Component({
    selector: 'app-leadmanagement',
@@ -21,7 +26,6 @@ import { GridSettings, GridSettingsWithData } from '../../interface';
      CommonModule,
      GridModule,
      ReactiveFormsModule,
-     ExcelExportComponent,
      KENDO_EXCELEXPORT,
      KENDO_DROPDOWNLIST,
      KENDO_TEXTBOX,
@@ -43,497 +47,292 @@ import { GridSettings, GridSettingsWithData } from '../../interface';
 
 export class LeadmanagementComponent implements OnInit {
   @ViewChild('excelExport', { static: false }) excelExport!: ExcelExportComponent;
-  @ViewChild(GridComponent) grid!: GridComponent;
-
   public listItems: string[] = ['All Leads', 'Pending', 'Completed'];
-  public searchPreference: string[] = ['Today\'s Leads', 'Saved 1', 'Custom 2'];
-  public allData: any[] = [];
-  public gridItems: any[] = [];
-  public gridView: any = { data: [], total: 0 };
-  // public pageSize = 10;
-  // public skip = 0;
-  public searchText: string = '';
-  public sort: any[] = [];
-
-  public formGroup!: FormGroup;
-  private editedRowIndex: number | null = null;
-  public editedItem: any = null;
-  savedPreferences: any[] = []; // Store saved preferences in the dropdown
-  currentPreferences: any = {}; // Store current preferences to save
-  public gridState: State = {
-    skip: 0,
-    take: 10
-  };
-  public columnOrder: string[] = [];
-  public columnsConfig: any[] = [];
-
-
-  // public gridView: GridDataResult;
-  public pageSize: number = 10;
-  public skip: number = 0;
-  public preferences: string[] = [];  // Store names of preferences
-  public currentPreference: string = '';
-  public gridData: any[] = [];
-  
-  
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    public recordService: RecordService,
-    public cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    this.loadGridData();
-    this.loadSavedPreferences();
-  }
-
-  private loadGridData(): void {
-    this.recordService.getRecords().subscribe({
-      next: (data) => {
-        this.gridItems = data;
-        this.updateGridView();
+  public gridSettings: GridSettings = {
+      state: {
+        skip: 0,
+        take: 10,
+        filter: { logic: 'and', filters: [] },
+        group: []
       },
-      error: (err) => console.error('Error loading data', err)
-    });
-  }
-
-  private updateGridView(): void {
-    const sortedData = orderBy(this.gridItems, this.sort);
-    this.gridView = {
-      data: sortedData.slice(this.skip, this.skip + this.pageSize),
-      total: sortedData.length
+      gridData: { data: [], total: 0 },
+      columnsConfig: [
+        { field: 'recordId', title: 'Record ID', width: 150, editable: false, orderIndex: 0 },
+        { field: 'lastName', title: 'Last Name', width: 200, orderIndex: 1 },
+        { field: 'firstName', title: 'First Name', width: 200, editable: true, orderIndex: 2 },
+        { field: 'email', title: 'Email', width: 250, editable: true, orderIndex: 3 },
+        { field: 'phoneType', title: 'Phone Type', width: 150, editable: true, orderIndex: 4 },
+        { field: 'leadId', title: 'Lead ID', width: 200, editable: true, orderIndex: 5 },
+        { field: 'appointmentType', title: 'Appointment Type', width: 180, editable: true, orderIndex: 6 },
+        { field: 'bookingAgency', title: 'Booking Agency', width: 180, editable: true, orderIndex: 7 },
+        { field: 'assignedDate', title: 'Assigned Date', width: 180, editable: true, orderIndex: 8 },
+        { field: 'salesRep', title: 'Sales Rep', width: 180, editable: true, orderIndex: 9 },
+        { field: 'coordinator', title: 'Coordinator', width: 180, editable: true, orderIndex: 10 },
+        { field: 'syncToMobile', title: 'Sync To Mobile', width: 150, editable: true, orderIndex: 11 },
+        { field: 'createdSource', title: 'Created Source', width: 180, editable: true, orderIndex: 12 },
+        { field: 'mobileSyncStatus', title: 'Mobile Sync Status', width: 180, editable: true, orderIndex: 13 },
+        { field: 'effectiveDate', title: 'Effective Date', width: 180, editable: true, orderIndex: 14 },
+        { field: 'validThrough', title: 'Valid Through', width: 180, editable: true, orderIndex: 15 }
+      ]
     };
-  }
-
-  public pageChange(event: PageChangeEvent): void {
-    this.skip = event.skip;
-    this.updateGridView();
-  }
-
-  public exportToExcel(): void {
+  
+    public editField = 'inEdit';
+    public cellArgs!: CellClickEvent;
+    public savedPreferences: string[] = [];
+    public selectedPreference: string = '';
+    public isPreferencePopupOpen: boolean = false;
+    public newPreferenceName: string = '';
+    public searchQuery: string = '';
+    private originalGridData: any[] = [];
+    constructor(private persistingService: ServiceService, private fb: FormBuilder, private elRef: ElementRef) {}
+  
+    ngOnInit(): void {
+      const localSettings = this.persistingService.getFromLocal<GridSettings>('gridSettings');
+  
+      if (localSettings) {
+        this.gridSettings = this.mapGridSettings(localSettings);
+      }
+  
+      this.loadGridData();
+      this.refreshSavedPreferences(); // Load saved preferences on initialization
+    }
+  
+    public get savedStateExists(): boolean {
+      return !!this.persistingService.getFromLocal<GridSettings>('gridSettings');
+    }
+  
+    loadGridData(): void {
+      this.persistingService.fetchGridData().subscribe((data) => {
+        this.originalGridData = data;
+        this.gridSettings.gridData = process(data, this.gridSettings.state);
+      });
+    }
+  
+    public dataStateChange(state: State): void {
+      this.gridSettings.state = state;
+      this.persistingService.fetchGridData().subscribe((data) => {
+        this.gridSettings.gridData = process(data, state);
+      });
+    }
+  
+    public saveGridSettings(grid: GridComponent): void {
+      const name = prompt('Enter a name for the grid state:');
+      if (!name) return;
+  
+      const gridConfig: GridSettings = {
+        state: this.gridSettings.state,
+        gridData: this.gridSettings.gridData,
+        columnsConfig: grid.columns.toArray().map((col: any) => ({
+          field: col.field,
+          width: col.width,
+          title: col.title,
+          filter: col.filter,
+          format: col.format,
+          filterable: col.filterable,
+          orderIndex: col.orderIndex,
+          hidden: col.hidden
+        }))
+      };
+  
+      const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+      preferences.push({ name, gridConfig });
+      localStorage.setItem('preferences', JSON.stringify(preferences));
+  
+      this.refreshSavedPreferences();
+    }
+  
+    public loadSavedState(): void {
+      const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+      const selected = preferences.find((p: any) => p.name === this.selectedPreference);
+      if (!selected) return;
+  
+      this.gridSettings.state = selected.gridConfig.state;
+      this.gridSettings.columnsConfig = selected.gridConfig.columnsConfig;
+  
+      // Apply column settings to the grid
+      const gridColumns = this.gridSettings.columnsConfig.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+      this.gridSettings.columnsConfig = gridColumns;
+  
+      this.loadGridData(); // Reload the grid data based on the state
+    }
+  
+    public mapGridSettings(gridSettings: GridSettings): GridSettings {
+      return {
+        state: gridSettings.state,
+        columnsConfig: gridSettings.columnsConfig.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0)),
+        gridData: { data: [], total: 0 } // will be loaded in `loadGridData`
+      };
+    }
+  
+    public onCellDoubleClick(event: MouseEvent): void {
+      const target = event.target as HTMLElement;
+      const cell = target.closest('kendo-grid-cell');
+      if (cell) {
+        const columnField = cell.getAttribute('data-column-field');
+        if (columnField) {
+          this.editField = columnField;
+          console.log(`Double-clicked on column: ${columnField}`);
+        }
+      }
+    }
+  
+    public cellClickHandler(args: CellClickEvent): void {
+      this.cellArgs = args;
+    }
+  
+    public onDblClick(): void {
+      if (this.cellArgs && !this.cellArgs.isEdited) {
+        this.cellArgs.sender.editCell(
+          this.cellArgs.rowIndex,
+          this.cellArgs.columnIndex,
+          this.fb.group(this.cellArgs.dataItem)
+        );
+      }
+    }
+  
+    public cellCloseHandler(args: any): void {
+      if (args.formGroup && args.formGroup.valid) {
+        const updatedItem = args.formGroup.value;
+        Object.assign(args.dataItem, updatedItem);
+        console.log('Updated data item:', args.dataItem);
+  
+        // Save the updated data to the backend
+        this.persistingService.updateData(args.dataItem).subscribe(
+          (response) => {
+            console.log('Data successfully updated on the backend:', response);
+          },
+          (error) => {
+            console.error('Error updating data on the backend:', error);
+          }
+        );
+      }
+    }
+  
+    public savePreference(): void {
+      if (this.selectedPreference) {
+        console.log(`Saving preference: ${this.selectedPreference}`);
+        // Logic to save the preference
+        this.savedPreferences.push(this.selectedPreference);
+      }
+    }
+  
+    public openPreferencePopup(): void {
+      this.isPreferencePopupOpen = true;
+    }
+  
+    public closePreferencePopup(): void {
+      this.isPreferencePopupOpen = false;
+      this.newPreferenceName = '';
+    }
+  
+    public saveNewPreference(): void {
+      if (this.newPreferenceName) {
+        this.savedPreferences.push(this.newPreferenceName);
+        console.log(`Saved preference: ${this.newPreferenceName}`);
+        this.closePreferencePopup();
+      }
+    }
+  
+    public loadPreference(): void {
+      const selectedPreference = this.savedPreferences.find(
+        (pref) => pref === this.selectedPreference
+      );
+      if (selectedPreference) {
+        console.log(`Loading preference: ${selectedPreference}`);
+        // Logic to load grid settings for the selected preference
+      }
+    }
+  
+    public savePreferences(): void {
+      const name = prompt('Enter a name for the grid state:');
+      if (!name) return;
+  
+      if (!this.gridSettings.columnsConfig?.length) {
+        console.warn('❗ Column config is empty, cannot save.');
+        return;
+      }
+  
+      const preference = {
+        name,
+        state: this.gridSettings.state,
+        columnsConfig: this.gridSettings.columnsConfig
+      };
+  
+      const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+      preferences.push(preference);
+      localStorage.setItem('preferences', JSON.stringify(preferences));
+  
+      this.refreshSavedPreferences(); // Refresh the dropdown options after saving a new preference
+    }
+  
+    public loadSavedPreference(name: string): void {
+      const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+      const selected = preferences.find((p: any) => p.name === name);
+      if (!selected) return;
+  
+      this.gridSettings.state = selected.state;
+      this.gridSettings.columnsConfig = selected.columnsConfig;
+  
+      this.loadGridData(); // Load the grid data based on the state
+    }
+  
+    public clearPreference(): void {
+      // Reset the grid settings to their default state
+      this.gridSettings = {
+        state: {
+          skip: 0,
+          take: 10,
+          filter: { logic: 'and', filters: [] },
+          group: []
+        },
+        gridData: { data: [], total: 0 },
+        columnsConfig: [
+          { field: 'recordId', title: 'Record ID', width: 150, editable: false, orderIndex: 0 },
+          { field: 'lastName', title: 'Last Name', width: 200, orderIndex: 1 },
+          { field: 'firstName', title: 'First Name', width: 200, editable: true, orderIndex: 2 },
+          { field: 'email', title: 'Email', width: 250, editable: true, orderIndex: 3 },
+          { field: 'phoneType', title: 'Phone Type', width: 150, editable: true, orderIndex: 4 },
+          { field: 'leadId', title: 'Lead ID', width: 200, editable: true, orderIndex: 5 },
+          { field: 'appointmentType', title: 'Appointment Type', width: 180, editable: true, orderIndex: 6 },
+          { field: 'bookingAgency', title: 'Booking Agency', width: 180, editable: true, orderIndex: 7 },
+          { field: 'assignedDate', title: 'Assigned Date', width: 180, editable: true, orderIndex: 8 },
+          { field: 'salesRep', title: 'Sales Rep', width: 180, editable: true, orderIndex: 9 },
+          { field: 'coordinator', title: 'Coordinator', width: 180, editable: true, orderIndex: 10 },
+          { field: 'syncToMobile', title: 'Sync To Mobile', width: 150, editable: true, orderIndex: 11 },
+          { field: 'createdSource', title: 'Created Source', width: 180, editable: true, orderIndex: 12 },
+          { field: 'mobileSyncStatus', title: 'Mobile Sync Status', width: 180, editable: true, orderIndex: 13 },
+          { field: 'effectiveDate', title: 'Effective Date', width: 180, editable: true, orderIndex: 14 },
+          { field: 'validThrough', title: 'Valid Through', width: 180, editable: true, orderIndex: 15 }
+        ]
+      };
+  
+      this.selectedPreference = ''; // Clear the dropdown selection
+      this.loadGridData(); // Reload the grid data to reflect the default state
+    }
+  
+    private refreshSavedPreferences(): void {
+      const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
+      this.savedPreferences = preferences.map((p: any) => p.name); // Map saved preference names
+      console.log('Saved preferences loaded:', this.savedPreferences);
+    }
+    
+    public exportToExcel(): void {
     this.excelExport.save();
   }
 
-  public onFilter(value: string): void {
-    this.searchAndFilter(value);
-  }
-
-  public onSearchClick(value: string): void {
-    this.searchAndFilter(value);
-  }
-
-  private searchAndFilter(value: string): void {
-    const searchText = value.toLowerCase();
-    const filtered = this.gridItems.filter(item =>
-      Object.values(item).some(val =>
-        String(val).toLowerCase().includes(searchText)
-      )
-    );
-
-    this.gridView = {
-      data: filtered.slice(0, this.pageSize),
-      total: filtered.length
-    };
-
-    this.skip = 0;
-  }
-
-  public sortChange(sort: any[]): void {
-    this.sort = sort;
-    this.updateGridView();
-  }
-
-  public editHandler({ sender, rowIndex, dataItem }: any): void {
-    this.closeEditor(sender);
-    this.formGroup = this.fb.group({
-      id: [dataItem.id],
-      recordId: [dataItem.recordId],
-      lastName: [dataItem.lastName, Validators.required],
-      firstName: [dataItem.firstName, Validators.required],
-      email: [dataItem.email, [Validators.required, Validators.email]],
-      phoneType: [dataItem.phoneType],
-      leadId: [dataItem.leadId],
-      appointmentType: [dataItem.appointmentType],
-      bookingAgency: [dataItem.bookingAgency],
-      assignedDate: [dataItem.assignedDate],
-      salesRep: [dataItem.salesRep],
-      coordinator: [dataItem.coordinator],
-      syncToMobile: [dataItem.syncToMobile],
-      createdSource: [dataItem.createdSource],
-      mobileSyncStatus: [dataItem.mobileSyncStatus],
-      effectiveDate: [dataItem.effectiveDate],
-      validThrough: [dataItem.validThrough],
-    });
-
-    this.editedRowIndex = rowIndex;
-    sender.editRow(rowIndex, this.formGroup);
-  }
-
-  public cancelHandler({ sender }: any): void {
-    this.closeEditor(sender);
-  }
-
-  public removeHandler({ dataItem }: any): void {
-    const id = dataItem.id;
-    this.recordService.deleteRecord(id).subscribe({
-      next: () => {
-        this.gridItems = this.gridItems.filter(item => item.id !== id);
-        this.updateGridView();
-      },
-      error: (err) => console.error('Delete error:', err)
-    });
-  }
-
-  public addNewLead(): void {
-    const newLead = {
-      recordId: this.generateNextRecordId(),
-      lastName: '',
-      firstName: '',
-      email: '',
-      phoneType: '',
-      leadId: '',
-      appointmentType: '',
-      bookingAgency: '',
-      assignedDate: new Date(),
-      salesRep: '',
-      coordinator: '',
-      syncToMobile: false,
-      createdSource: '',
-      mobileSyncStatus: 'N/A',
-      effectiveDate: new Date(),
-      validThrough: new Date()
-    };
-
-    this.recordService.addRecord(newLead).subscribe({
-      next: (createdRecord) => {
-        this.gridItems.unshift(createdRecord);
-        this.updateGridView();
-        this.editHandler({
-          sender: this.grid,
-          rowIndex: 0,
-          dataItem: createdRecord
-        });
-      },
-      error: (err) => {
-        console.error('Failed to create new record:', err);
-        alert('Error creating record. Try again.');
-      }
-    });
-  }
-
-  private closeEditor(grid: GridComponent): void {
-    if (this.editedRowIndex !== null) {
-      grid.closeRow(this.editedRowIndex);
-      this.editedRowIndex = null;
-      this.formGroup = this.fb.group({});
-    }
-  }
-
-  public isItemInEditMode(item: any): boolean {
-    return this.formGroup && this.formGroup.get('id')?.value === item.id;
-  }
-
-  public isNonIntl: boolean = false;
-
-  toggleNonIntl(value: boolean): void {
-    this.isNonIntl = value;
-  }
-
-  private generateNextRecordId(): string {
-    if (!this.gridItems.length) {
-      return 'R001';
-    }
-
-    const existingIds = this.gridItems
-      .map(item => item.recordId)
-      .filter(id => /^R\d{3}$/.test(id))
-      .map(id => parseInt(id.substring(1)));
-
-    const maxId = Math.max(...existingIds);
-    const nextId = maxId + 1;
-
-    return 'R' + nextId.toString().padStart(3, '0');
-  }
-
-  public onRowDoubleClick(event: any): void {
-    const rowIndex = this.gridView.data.findIndex((item: any) => item === event.dataItem);
-    if (rowIndex !== -1) {
-      this.editHandler({ sender: this.grid, rowIndex, dataItem: event.dataItem });
-    }
-  }
-
-  public onGridClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (target.tagName.toLowerCase() !== 'input') {
-      this.saveAndExitEdit();
-    }
-  }
-  public onCellBlur(dataItem: any): void {
-    this.recordService.updateRecord(dataItem).subscribe(() => {
-      this.loadGridData();
-    });
-  }
-  public isItemInEditModeInline(dataItem: any): boolean {
-    return dataItem?.inEdit;
-  }
-
-  private saveAndExitEdit(): void {
-    if (this.editedItem) {
-      const index = this.gridView.data.findIndex((item:any) => item.recordId === this.editedItem.recordId);
-      if (index !== -1) {
-        this.gridView.data[index] = { ...this.gridView.data[index], ...this.editedItem };
-        this.gridView.data[index].inEdit = false;
-      }
-      this.editedItem = null;
-    }
-  }
-  public cellClickHandler(event: CellClickEvent): void {
-    if (event.type === 'click') { 
-    }
-  }
-
-  // ✅ When you click outside a cell
-  public cellCloseHandler(event: CellCloseEvent): void {
-    if (!event.formGroup) {
-      return; // No formGroup, no action
-    }
-  
-    if (!event.formGroup.valid) {
-      event.preventDefault(); // Prevent closing if invalid
-      return;
-    }
-  
-    const updatedItem = { ...event.dataItem, ...event.formGroup.value }; 
-    this.recordService.updateRecord(updatedItem).subscribe({
-      next: () => {
-        const index = this.gridItems.findIndex(item => item.id === updatedItem.id);
-        if (index !== -1) {
-          this.gridItems[index] = updatedItem;
-        }
-        this.updateGridView();
-        console.log('Record updated successfully');
-      },
-      error: (err) => {
-        console.error('Update error:', err);
-        alert('Error updating record.');
-      }
-    });
-  }
-
-  // Refined the saveHandler method to ensure proper data saving and UI updates
-  public saveHandler(event: SaveEvent): void {
-    const updatedItem = event.formGroup.value;
-
-    if (!updatedItem.id) {
-      console.error('Missing ID. Cannot update.');
-      alert('Error: Missing ID. Please try again.');
+  public searchGrid(): void {
+    if (!this.searchQuery.trim()) {
+      // Reset to original data if search query is empty
+      this.gridSettings.gridData = process(this.originalGridData, this.gridSettings.state);
       return;
     }
 
-    this.recordService.updateRecord(updatedItem).subscribe({
-      next: (response) => {
-        // Update the gridItems array with the updated record from the server response
-        const index = this.gridItems.findIndex(item => item.id === response.id);
-        if (index !== -1) {
-          this.gridItems[index] = response;
-        } else {
-          console.warn('Updated item not found in gridItems. Adding it.');
-          this.gridItems.push(response);
-        }
-
-        // Update the gridView to reflect the changes in the UI
-        this.updateGridView();
-
-        // Force change detection to ensure the UI is refreshed
-        this.cdr.detectChanges();
-
-        console.log('Record updated successfully:', response);
-      },
-      error: (err) => {
-        console.error('Update error:', err);
-        alert('Error updating the record. Please try again.');
-      }
+    const filteredData = this.originalGridData.filter((item: any) => {
+      return Object.values(item).some((value) =>
+        String(value).toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
     });
+
+    this.gridSettings.gridData = process(filteredData, this.gridSettings.state);
   }
-
-  public cellDblClickHandler(event: any): void {
-    const rowIndex = event.rowIndex;
-    const columnIndex = event.columnIndex;
-    const data = this.grid.data as any[] | null;
-    if (!data) {
-      console.error('Grid data is null or undefined');
-      return;
-    }
-    const dataItem = data[rowIndex];
-    console.log('Double-clicked cell:', event);
-    console.log('Row data:', dataItem);
-    const formGroup = this.createFormGroup(dataItem);
-    this.grid.editCell(rowIndex, columnIndex, formGroup);
-  }
-
-  private createFormGroup(dataItem: any): FormGroup {
-    return this.fb.group({
-      id: [dataItem.id],
-      recordId: [dataItem.recordId],
-      lastName: [dataItem.lastName, Validators.required],
-      firstName: [dataItem.firstName, Validators.required],
-      email: [dataItem.email, [Validators.required, Validators.email]],
-      phoneType: [dataItem.phoneType],
-      leadId: [dataItem.leadId],
-      appointmentType: [dataItem.appointmentType],
-      bookingAgency: [dataItem.bookingAgency],
-      assignedDate: [dataItem.assignedDate],
-      salesRep: [dataItem.salesRep],
-      coordinator: [dataItem.coordinator],
-      syncToMobile: [dataItem.syncToMobile],
-      createdSource: [dataItem.createdSource],
-      mobileSyncStatus: [dataItem.mobileSyncStatus],
-      effectiveDate: [dataItem.effectiveDate],
-      validThrough: [dataItem.validThrough],
-    });
-  }
-  public handleDblClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const rowElement = target.closest('tr');
-    const cellElement = target.closest('td');
-
-    if (!rowElement || !cellElement) {
-      console.error('Could not determine row or cell from double-click event.');
-      return;
-    }
-
-    const rowIndex = parseInt(rowElement.getAttribute('data-kendo-grid-item-index') || '-1', 10);
-    const columnIndex = Array.from(rowElement.children).indexOf(cellElement);
-
-    if (rowIndex === -1 || columnIndex === -1) {
-      console.error('Invalid row or column index.');
-      return;
-    }
-
-    const dataItem = this.gridView.data[rowIndex];
-    if (!dataItem) {
-      console.error('No data item found for the given row index.');
-      return;
-    }
-
-    const formGroup = this.createFormGroup(dataItem);
-    this.grid.editCell(rowIndex, columnIndex, formGroup);
-  }
-  public savePreferences(): void {
-    const name = prompt('Enter a name for the grid state:');
-    if (!name) return;
-
-    if (!this.columnsConfig?.length) {
-      console.warn('❗ Column config is empty, cannot save.');
-      return;
-    }
-
-    const preference = {
-      name,
-      state: this.gridState,
-      columnsConfig: this.columnsConfig
-    };
-
-    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
-    preferences.push(preference);
-    localStorage.setItem('preferences', JSON.stringify(preferences));
-
-    this.loadSavedPreferences(); // Refresh the dropdown options after saving a new preference
-  }
-  
-  public loadPreference(name: string): void {
-    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
-    const selected = preferences.find((p: any) => p.name === name);
-    if (!selected) return;
-
-    this.gridState = selected.state;
-    this.skip = this.gridState.skip || 0;
-    this.pageSize = this.gridState.take || 10;
-
-    this.applyColumnSettings(selected.columnsConfig); // Apply column settings
-    this.loadGridData(); // Load the grid data based on the state
-  }
-  
-  
-  private loadSavedPreferences(): void {
-    const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
-    this.preferences = preferences.map((p: any) => p.name); // Map saved preference names
-    console.log('Saved preferences loaded:', this.preferences);
-  }
-
-
-  public dataStateChange(state: DataStateChangeEvent): void {
-    this.gridState = state;
-    this.skip = state.skip!;
-    this.pageSize = state.take!;
-    localStorage.setItem('gridState', JSON.stringify(state));
-  }
-  public onColumnReorder(): void {
-    const currentColumns = this.grid.columns.toArray();
-
-    this.columnsConfig = currentColumns
-      .filter((col): col is ColumnComponent => col instanceof ColumnComponent)
-      .map((col, index) => ({
-        field: col.field,
-        title: col.title,
-        hidden: col.hidden,
-        width: col.width,
-        orderIndex: index
-      }));
-
-    console.log('📦 Updated columnsConfig:', this.columnsConfig);
-  }
-  
-  public applyColumnSettings(columnsConfig: any[]): void {
-    if (!columnsConfig?.length) return;
-
-    const currentColumns = this.grid.columns.toArray();
-
-    // Match and reorder columns based on saved config
-    const ordered = columnsConfig.map(cfg =>
-      currentColumns.find(col =>
-        col instanceof ColumnComponent &&
-        ((col.field && col.field === cfg.field) || col.title === cfg.title)
-      )
-    ).filter(c => !!c) as ColumnComponent[];
-
-    this.grid.columns.reset(ordered);
-    this.grid.columns.notifyOnChanges();
-
-    // Apply visibility and width safely
-    ordered.forEach((col, i) => {
-      const cfg = columnsConfig[i];
-      if (cfg) {
-        if (cfg.hidden !== undefined) col.hidden = cfg.hidden;
-        if (cfg.width !== undefined) col.width = cfg.width;
-      }
-    });
-  }
-  public mapGridSettings(gridSettings: GridSettings): GridSettingsWithData {
-    const state = gridSettings.state;
-    this.mapDateFilter(state.filter);
-
-    return {
-      name: gridSettings.name,
-      state,
-      columnsConfig: gridSettings.columnsConfig.sort((a, b) => a.orderIndex - b.orderIndex),
-      gridData: process(this.gridData, state)
-    };
-  }
-
-  // Map date filter if needed
-  private mapDateFilter = (descriptor: any) => {
-    const filters = descriptor.filters || [];
-
-    filters.forEach((filter: any) => {
-      if (filter.filters) {
-        this.mapDateFilter(filter);
-      } else if (filter.field === "FirstOrderedOn" && filter.value) {
-        filter.value = new Date(filter.value);
-      }
-    });
-  };
-    
-  
 }

@@ -52,6 +52,15 @@
       }
     </kendo-grid>
 
+    <div class="search-container">
+          <kendo-textbox
+  [(ngModel)]="searchQuery"
+  placeholder="Search..."
+  (ngModelChange)="searchGrid()"
+>
+</kendo-textbox>
+    </div>
+
     <div class="preferences-container">
         <button kendoButton (click)="saveGridSettings(grid)">Save Preference</button>
         <select id="preferenceName" [(ngModel)]="selectedPreference" (change)="loadSavedState()">

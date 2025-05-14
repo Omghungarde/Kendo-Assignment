@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CellClickEvent, GridComponent } from '@progress/kendo-angular-grid';
 import { KENDO_GRID } from '@progress/kendo-angular-grid';
 import { ColumnSettings, GridSettings } from '../new/interface2';
@@ -52,8 +52,10 @@ export class NewComponent implements OnInit {
   public selectedPreference: string = '';
   public isPreferencePopupOpen: boolean = false;
   public newPreferenceName: string = '';
+  public searchQuery: string = '';
+  private originalGridData: any[] = []; // To store the original grid data
 
-  constructor(private persistingService: ServiceService, private fb: FormBuilder, private elRef: ElementRef) {}
+  constructor(private persistingService: ServiceService, private fb: FormBuilder, private elRef: ElementRef, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     const localSettings = this.persistingService.getFromLocal<GridSettings>('gridSettings');
@@ -72,6 +74,7 @@ export class NewComponent implements OnInit {
 
   loadGridData(): void {
     this.persistingService.fetchGridData().subscribe((data) => {
+      this.originalGridData = data; // Store the original data
       this.gridSettings.gridData = process(data, this.gridSettings.state);
     });
   }
@@ -282,5 +285,23 @@ export class NewComponent implements OnInit {
     const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
     this.savedPreferences = preferences.map((p: any) => p.name); // Map saved preference names
     console.log('Saved preferences loaded:', this.savedPreferences);
+  }
+
+  public searchGrid(): void {
+    if (!this.searchQuery.trim()) {
+      // Reset to original data if search query is empty
+      this.gridSettings.gridData = process(this.originalGridData, this.gridSettings.state);
+      this.cdr.detectChanges(); // Trigger change detection
+      return;
+    }
+
+    const filteredData = this.originalGridData.filter((item: any) => {
+      return Object.values(item).some((value) =>
+        String(value).toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    });
+
+    this.gridSettings.gridData = process(filteredData, this.gridSettings.state);
+    this.cdr.detectChanges(); // Trigger change detection
   }
 }

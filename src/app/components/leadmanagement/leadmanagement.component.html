@@ -11,7 +11,7 @@
     <button class="export-btn" kendoButton type="button" (click)="exportToExcel()">
       <i class="fas fa-download"></i> Export To Excel
     </button>
-    <kendo-excelexport #excelExport [data]="gridItems" fileName="LeadManagementData.xlsx">
+    <!-- <kendo-excelexport #excelExport [data]="gridItems" fileName="LeadManagementData.xlsx">
 
       <kendo-excelexport-column field="recordId" title="Record Id"></kendo-excelexport-column>
       <kendo-excelexport-column field="lastName" title="Last Name"></kendo-excelexport-column>
@@ -30,9 +30,10 @@
       <kendo-excelexport-column field="effectiveDate" title="Effective Date"></kendo-excelexport-column>
       <kendo-excelexport-column field="validThrough" title="Valid Through"></kendo-excelexport-column>
 
-    </kendo-excelexport>
+    </kendo-excelexport> -->
 
-    <button class="create-btn" kendoButton (click)="addNewLead()">Create</button>
+    <!-- <button class="create-btn" kendoButton (click)="addNewLead()">Create</button> -->
+    <button class="create-btn" kendoButton>Create</button>
 
   </div>
 </div>
@@ -48,28 +49,29 @@
     <kendo-label for="preferences-dropdown">
      
       <kendo-dropdownlist
-  [data]="preferences"
-  [(ngModel)]="currentPreference"
+  [data]="savedPreferences"
+  [(ngModel)]="selectedPreference"
+  (valueChange)="loadSavedState()"
   [valuePrimitive]="true"
-  [defaultItem]="'Select Preference'"
-  (valueChange)="loadPreference($event)">
+>
 </kendo-dropdownlist>
 
 
     </kendo-label>
     <div class="search-group">
       <kendo-textbox
-      #searchBox
-        [style.width.px]="250"
-        placeholder="Search in all columns..."
-        (valueChange)="onFilter($event)">
-      </kendo-textbox>
+  [(ngModel)]="searchQuery"
+  placeholder="Search..."
+  (ngModelChange)="searchGrid()"
+>
+</kendo-textbox>
     </div>
     <div class="searchbtn">   
-      <button class="search-btn" (click)="onSearchClick(searchBox.value)">
+      <!-- <button class="search-btn" (click)="onSearchClick(searchBox.value)"> -->
+      <button class="search-btn">
         <i class="fas fa-search"></i>
       </button>
-    </div>
+      </div>
 
     <!-- <div class="search-group">
  </div>     <kendo-textbox [style.width.px]="165" placeholder="Search in all columns..."
@@ -82,60 +84,78 @@
       </button>
     </div> -->
 
-    <div class="custom-pill-toggle">
+    <!-- <div class="custom-pill-toggle">
       <span class="pill-option" [class.active]="!isNonIntl" (click)="isNonIntl = false">
         Intl
       </span>
       <span class="pill-option" [class.active]="isNonIntl" (click)="isNonIntl = true">
         Non-Intl
       </span>
+    </div> -->
+    <div class="custom-pill-toggle">
+      <span class="pill-option">
+        Intl
+      </span>
+      <span class="pill-option">
+        Non-Intl
+      </span>
     </div>
 
-    <button class="create-btn-div">Clear Filters</button>
+    <button class="create-btn-div"(click)="clearPreference()">Clear Filters</button>
     <button class="create-btn-div">Bulk Edit</button>
-    <button class="create-btn-div"(click)="savePreferences()">Save Preference</button>
+    <button class="create-btn-div"(click)="saveGridSettings(grid)">Save Preference</button>
   </div>
+  <kendo-dialog *ngIf="isPreferencePopupOpen" (close)="closePreferencePopup()">
+        <div class="popup-content">
+          <label for="preferenceInput">Preference Name:</label>
+          <input id="preferenceInput" [(ngModel)]="newPreferenceName" />
+        </div>
+        <kendo-dialog-actions>
+          <button kendoButton (click)="saveNewPreference()">Save</button>
+          <button kendoButton (click)="closePreferencePopup()">Cancel</button>
+        </kendo-dialog-actions>
+      </kendo-dialog>
 
   <kendo-grid
-  #grid
-  [data]="gridView.data"
-  [pageSize]="pageSize"
-  [skip]="skip"
-  [pageable]="true"
-  [sortable]="true"
-  [navigable]="true"
-  [height]="450"
-  [columnMenu]="true"
-  [reorderable]="true"
-  [resizable]="true"
-  [editable]="'incell'"
-  (pageChange)="pageChange($event)"
-  (sortChange)="sortChange($event)"
-  (cellClose)="cellCloseHandler($event)"
-  (save)="saveHandler($event)"
-  (cancel)="cancelHandler($event)"
-  (cellClick)="cellClickHandler($event)"
-  (dblclick)="handleDblClick($event)"
-  (dataStateChange)="dataStateChange($event)"
-  (columnReorder)="onColumnReorder()"  
->
-  <kendo-grid-checkbox-column [columnMenu]="false" [width]="50"></kendo-grid-checkbox-column>
-  <kendo-grid-column field="action_button" title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
-    <ng-template kendoGridCellTemplate let-dataItem>
-      <kendo-splitbutton *ngIf="!isItemInEditMode(dataItem)" [data]="listItems" class="action_button">
-        <i class="fas fa-eye"></i> Action
-      </kendo-splitbutton>
-    </ng-template>
-  </kendo-grid-column>
-  <kendo-grid-column field="recordId" title="Record Id" [editable]="false" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="lastName" title="Last Name" [width]="150" [editable]="true">
-  </kendo-grid-column>
-  <kendo-grid-column field="firstName" title="First Name" [width]="150" [editable]="true"> 
-  </kendo-grid-column>
-  <kendo-grid-column field="email" title="Email" [width]="200" [editable]="true">
-  </kendo-grid-column>
-  <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
-</kendo-grid>
+      #grid
+      [data]="gridSettings.gridData"
+      [resizable]="true"
+      [reorderable]="true"
+      [columnMenu]="true"
+      [pageable]="true"
+      [pageSize]="gridSettings.state.take"
+      [skip]="gridSettings.state.skip"
+      [sortable]="true"
+      [sort]="gridSettings.state.sort"
+      [filter]="gridSettings.state.filter"
+      [group]="gridSettings.state.group"
+      (dataStateChange)="dataStateChange($event)"
+      (cellClick)="cellClickHandler($event)"
+      (dblclick)="onDblClick()"
+      (cellClose)="cellCloseHandler($event)"
+    >
+      @for (col of gridSettings.columnsConfig; track col) {
+      <kendo-grid-column
+        [field]="col.field"
+        [title]="col.title"
+        [width]="col.width ?? 100"
+        [filter]="col.filter ?? 'text'"
+        [filterable]="col.filterable ?? false"
+        [hidden]="col.hidden ?? false"
+        [format]="col.format"
+        [editable]="true"
+        (dblclick)="onCellDoubleClick($event)"
+      >
+      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
+        <input
+          kendoTextBox
+          [formControl]="formGroup.get(col.field)"
+          [placeholder]="col.title"
+        />
+      </ng-template>
+      </kendo-grid-column>
+      }
+    </kendo-grid>
 
                                               
 </div>
