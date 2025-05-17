@@ -16,6 +16,7 @@ export interface ColumnSettings {
     hidden?: boolean;
     orderIndex?: number;
     editable?: boolean; // ✅ Add this line
+    sticky?: boolean; // ✅ Add this line
   }
   
 

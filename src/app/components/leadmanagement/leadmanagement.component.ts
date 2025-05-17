@@ -57,22 +57,24 @@ export class LeadmanagementComponent implements OnInit {
       },
       gridData: { data: [], total: 0 },
       columnsConfig: [
-        { field: 'recordId', title: 'Record ID', width: 150, editable: false, orderIndex: 0 },
-        { field: 'lastName', title: 'Last Name', width: 200, orderIndex: 1 },
-        { field: 'firstName', title: 'First Name', width: 200, editable: true, orderIndex: 2 },
-        { field: 'email', title: 'Email', width: 250, editable: true, orderIndex: 3 },
-        { field: 'phoneType', title: 'Phone Type', width: 150, editable: true, orderIndex: 4 },
-        { field: 'leadId', title: 'Lead ID', width: 200, editable: true, orderIndex: 5 },
-        { field: 'appointmentType', title: 'Appointment Type', width: 180, editable: true, orderIndex: 6 },
-        { field: 'bookingAgency', title: 'Booking Agency', width: 180, editable: true, orderIndex: 7 },
-        { field: 'assignedDate', title: 'Assigned Date', width: 180, editable: true, orderIndex: 8 },
-        { field: 'salesRep', title: 'Sales Rep', width: 180, editable: true, orderIndex: 9 },
-        { field: 'coordinator', title: 'Coordinator', width: 180, editable: true, orderIndex: 10 },
-        { field: 'syncToMobile', title: 'Sync To Mobile', width: 150, editable: true, orderIndex: 11 },
-        { field: 'createdSource', title: 'Created Source', width: 180, editable: true, orderIndex: 12 },
-        { field: 'mobileSyncStatus', title: 'Mobile Sync Status', width: 180, editable: true, orderIndex: 13 },
-        { field: 'effectiveDate', title: 'Effective Date', width: 180, editable: true, orderIndex: 14 },
-        { field: 'validThrough', title: 'Valid Through', width: 180, editable: true, orderIndex: 15 }
+        
+            { field: 'recordId', title: 'Record ID', width: 150, editable: false, orderIndex: 0},
+            { field: 'lastName', title: 'Last Name', width: 200, orderIndex: 1},
+            { field: 'firstName', title: 'First Name', width: 200, editable: true, orderIndex: 2},
+            { field: 'email', title: 'Email', width: 250, editable: true, orderIndex:3 },
+            { field: 'phoneType', title: 'Phone Type', width: 150, editable: true, orderIndex: 4},
+            { field: 'leadId', title: 'Lead ID', width: 200, editable: true, orderIndex:5 },
+            { field: 'appointmentType', title: 'Appointment Type', width: 180, editable: true, orderIndex:6 },
+            { field: 'bookingAgency', title: 'Booking Agency', width: 180, editable: true, orderIndex:7 },
+            { field: 'assignedDate', title: 'Assigned Date', width: 180, editable: true, orderIndex: 8 },
+            { field: 'salesRep', title: 'Sales Rep', width: 180, editable: true, orderIndex: 9 },
+            { field: 'coordinator', title: 'Coordinator', width: 180, editable: true, orderIndex: 10 },
+            { field: 'syncToMobile', title: 'Sync To Mobile', width: 150, editable: true, orderIndex:11  },
+            { field: 'createdSource', title: 'Created Source', width: 180, editable: true, orderIndex: 12 },
+            { field: 'mobileSyncStatus', title: 'Mobile Sync Status', width: 180, editable: true, orderIndex: 13 },
+            { field: 'effectiveDate', title: 'Effective Date', width: 180, editable: true, orderIndex: 14 },
+            { field: 'validThrough', title: 'Valid Through', width: 180, editable: true, orderIndex: 15 }
+
       ]
     };
   
@@ -121,25 +123,29 @@ export class LeadmanagementComponent implements OnInit {
       const name = prompt('Enter a name for the grid state:');
       if (!name) return;
   
+      // Only save non-sticky, non-checkbox, non-action columns
       const gridConfig: GridSettings = {
         state: this.gridSettings.state,
         gridData: this.gridSettings.gridData,
-        columnsConfig: grid.columns.toArray().map((col: any) => ({
-          field: col.field,
-          width: col.width,
-          title: col.title,
-          filter: col.filter,
-          format: col.format,
-          filterable: col.filterable,
-          orderIndex: col.orderIndex,
-          hidden: col.hidden
-        }))
+        columnsConfig: grid.columns.toArray()
+          .map((col: any) => ({
+            field: col.field,
+            width: col.width,
+            title: col.title,
+            filter: col.filter,
+            format: col.format,
+            filterable: col.filterable,
+            orderIndex: col.orderIndex,
+            hidden: col.hidden,
+            sticky: col.sticky || false
+          }))
+          .filter((col: any) => col.field && col.field !== 'actionColumn' && col.field !== 'checkboxColumn')
       };
   
+      console.log('Grid settings to save:', gridConfig);  
       const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
       preferences.push({ name, gridConfig });
       localStorage.setItem('preferences', JSON.stringify(preferences));
-  
       this.refreshSavedPreferences();
     }
   
@@ -147,13 +153,13 @@ export class LeadmanagementComponent implements OnInit {
       const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
       const selected = preferences.find((p: any) => p.name === this.selectedPreference);
       if (!selected) return;
+      console.log('Selected preference:', selected);
   
       this.gridSettings.state = selected.gridConfig.state;
-      this.gridSettings.columnsConfig = selected.gridConfig.columnsConfig;
-  
-      // Apply column settings to the grid
-      const gridColumns = this.gridSettings.columnsConfig.sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
-      this.gridSettings.columnsConfig = gridColumns;
+      // Only load non-sticky, non-checkbox, non-action columns
+      this.gridSettings.columnsConfig = selected.gridConfig.columnsConfig
+        .filter((col: any) => col.field && col.field !== 'actionColumn' && col.field !== 'checkboxColumn')
+        .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
   
       this.loadGridData(); // Reload the grid data based on the state
     }
@@ -271,14 +277,21 @@ export class LeadmanagementComponent implements OnInit {
       const preferences = JSON.parse(localStorage.getItem('preferences') || '[]');
       const selected = preferences.find((p: any) => p.name === name);
       if (!selected) return;
+  console.log('Selected preference:', selected);
   
       this.gridSettings.state = selected.state;
       this.gridSettings.columnsConfig = selected.columnsConfig;
-  
+      console.log(this.gridSettings.columnsConfig);
+      
       this.loadGridData(); // Load the grid data based on the state
     }
   
     public clearPreference(): void {
+      // Remove saved grid settings from localStorage
+      localStorage.removeItem('gridSettings');
+      // Optionally clear preferences if you want to remove all saved preferences:
+      // localStorage.removeItem('preferences');
+
       // Reset the grid settings to their default state
       this.gridSettings = {
         state: {
@@ -289,27 +302,28 @@ export class LeadmanagementComponent implements OnInit {
         },
         gridData: { data: [], total: 0 },
         columnsConfig: [
-          { field: 'recordId', title: 'Record ID', width: 150, editable: false, orderIndex: 0 },
-          { field: 'lastName', title: 'Last Name', width: 200, orderIndex: 1 },
-          { field: 'firstName', title: 'First Name', width: 200, editable: true, orderIndex: 2 },
-          { field: 'email', title: 'Email', width: 250, editable: true, orderIndex: 3 },
-          { field: 'phoneType', title: 'Phone Type', width: 150, editable: true, orderIndex: 4 },
-          { field: 'leadId', title: 'Lead ID', width: 200, editable: true, orderIndex: 5 },
-          { field: 'appointmentType', title: 'Appointment Type', width: 180, editable: true, orderIndex: 6 },
-          { field: 'bookingAgency', title: 'Booking Agency', width: 180, editable: true, orderIndex: 7 },
+          { field: 'recordId', title: 'Record ID', width: 150, editable: false, orderIndex: 0},
+          { field: 'lastName', title: 'Last Name', width: 200, orderIndex: 1},
+          { field: 'firstName', title: 'First Name', width: 200, editable: true, orderIndex: 2},
+          { field: 'email', title: 'Email', width: 250, editable: true, orderIndex:3 },
+          { field: 'phoneType', title: 'Phone Type', width: 150, editable: true, orderIndex: 4},
+          { field: 'leadId', title: 'Lead ID', width: 200, editable: true, orderIndex:5 },
+          { field: 'appointmentType', title: 'Appointment Type', width: 180, editable: true, orderIndex:6 },
+          { field: 'bookingAgency', title: 'Booking Agency', width: 180, editable: true, orderIndex:7 },
           { field: 'assignedDate', title: 'Assigned Date', width: 180, editable: true, orderIndex: 8 },
           { field: 'salesRep', title: 'Sales Rep', width: 180, editable: true, orderIndex: 9 },
           { field: 'coordinator', title: 'Coordinator', width: 180, editable: true, orderIndex: 10 },
-          { field: 'syncToMobile', title: 'Sync To Mobile', width: 150, editable: true, orderIndex: 11 },
+          { field: 'syncToMobile', title: 'Sync To Mobile', width: 150, editable: true, orderIndex:11  },
           { field: 'createdSource', title: 'Created Source', width: 180, editable: true, orderIndex: 12 },
           { field: 'mobileSyncStatus', title: 'Mobile Sync Status', width: 180, editable: true, orderIndex: 13 },
           { field: 'effectiveDate', title: 'Effective Date', width: 180, editable: true, orderIndex: 14 },
           { field: 'validThrough', title: 'Valid Through', width: 180, editable: true, orderIndex: 15 }
         ]
       };
-  
+
       this.selectedPreference = ''; // Clear the dropdown selection
       this.loadGridData(); // Reload the grid data to reflect the default state
+      this.refreshSavedPreferences(); // Refresh the dropdown options
     }
   
     private refreshSavedPreferences(): void {

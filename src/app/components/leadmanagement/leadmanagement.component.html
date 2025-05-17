@@ -95,7 +95,7 @@
         </kendo-dialog-actions>
       </kendo-dialog>
 
-  <kendo-grid
+  <!-- <kendo-grid
       #grid
       [data]="gridSettings.gridData"
       [resizable]="true"
@@ -113,9 +113,20 @@
       (dblclick)="onDblClick()"
       (cellClose)="cellCloseHandler($event)"
     >
+  
+          	  <kendo-grid-checkbox-column [columnMenu]="false" [width]="50" [sticky]="true" field="fgfg"></kendo-grid-checkbox-column>
+
+      <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" field="sd" headerClass="actions-header" [sticky]="true">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          <kendo-splitbutton [data]="listItems" class="action_button">
+            <i class="fas fa-eye"></i> Action
+          </kendo-splitbutton>
+        </ng-template>
+      </kendo-grid-column>
 
       @for (col of gridSettings.columnsConfig; track col) {
         
+
       <kendo-grid-column
         [field]="col.field"
         [title]="col.title"
@@ -136,58 +147,113 @@
       </ng-template>
       </kendo-grid-column>
       }
-    </kendo-grid>
 
-                                              
-</div>
-                                           
-       
+    
+    </kendo-grid> -->
 
-<!-- Command Buttons Column -->
-    <!-- <kendo-grid-column title="Action Buttons" [width]="250" [sticky]="true">
-      <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
-        <ng-container *ngIf="!isItemInEditMode(dataItem)">
+<!-- Only the first grid uses preferences and dynamic columns. The second grid is static and not affected by preferences. -->
 
-          <button class="k-button k-primary ms-2 me-3"
-            (click)="editHandler({ sender: grid, rowIndex: rowIndex, dataItem: dataItem })">
-            Edit
-          </button>
-          <button class="k-button k-danger" (click)="removeHandler({ dataItem: dataItem })">
-            Remove
-          </button>
-        </ng-container>
-        <ng-container *ngIf="isItemInEditMode(dataItem)">
-          <button class="k-button k-success"
-            (click)="saveHandler({ sender: grid, rowIndex: rowIndex, formGroup: formGroup })"
-            [disabled]="!formGroup.valid">
-            Save
-          </button>
-          <button class="k-button" (click)="cancelHandler({ sender: grid, rowIndex: rowIndex })">
-            Cancel
-          </button>
-        </ng-container>
+<kendo-grid
+    #grid
+    [data]="gridSettings.gridData"
+    [resizable]="true"
+    [reorderable]="true"
+    [columnMenu]="true"
+    [pageable]="true"
+    [pageSize]="gridSettings.state.take"
+    [skip]="gridSettings.state.skip"
+    [sortable]="true"
+    [sort]="gridSettings.state.sort"
+    [filter]="gridSettings.state.filter"
+    [group]="gridSettings.state.group"
+    (dataStateChange)="dataStateChange($event)"
+    (cellClick)="cellClickHandler($event)"
+    (dblclick)="onDblClick()"
+    (cellClose)="cellCloseHandler($event)"
+  >
+    <kendo-grid-checkbox-column [columnMenu]="false" [width]="50" [sticky]="true"></kendo-grid-checkbox-column>
+    <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <kendo-splitbutton [data]="listItems" class="action_button">
+          <i class="fas fa-eye"></i> Action
+        </kendo-splitbutton>
       </ng-template>
-    </kendo-grid-column> -->
-                                                                                                                                                                                                                                                                              <!-- <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
+    </kendo-grid-column>
+    <ng-container *ngFor="let col of gridSettings.columnsConfig">
+      <kendo-grid-column
+        [field]="col.field"
+        [title]="col.title"
+        [width]="col.width ?? 100"
+        [filter]="col.filter ?? 'text'"
+        [filterable]="col.filterable ?? false"
+        [hidden]="col.hidden ?? false"
+        [format]="col.format"
+        [editable]="true"
+        (dblclick)="onCellDoubleClick($event)"
+      >
+        <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
+          <input
+            kendoTextBox
+            [formControl]="formGroup.get(col.field)"
+            [placeholder]="col.title"
+          />
+        </ng-template>
+      </kendo-grid-column>
+    </ng-container>
+</kendo-grid>
+
+
+<kendo-grid
+  #grid
+  [data]="gridSettings.gridData"
+  [resizable]="true"
+  [reorderable]="true"
+  [columnMenu]="true"
+  [pageable]="true"
+  [pageSize]="gridSettings.state.take"
+  [skip]="gridSettings.state.skip"
+  [sortable]="true"
+  [sort]="gridSettings.state.sort"
+  [filter]="gridSettings.state.filter"
+  [group]="gridSettings.state.group"
+  (dataStateChange)="dataStateChange($event)"
+  (cellClick)="cellClickHandler($event)"
+  (dblclick)="onDblClick()"
+  (cellClose)="cellCloseHandler($event)"
+>
+  <kendo-grid-checkbox-column [columnMenu]="false" [width]="50" [sticky]="true"></kendo-grid-checkbox-column>
+  <kendo-grid-column title="Actions" [width]="150" [columnMenu]="false" [sticky]="true" headerClass="actions-header">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <kendo-splitbutton [data]="listItems" class="action_button">
+        <i class="fas fa-eye"></i> Action
+      </kendo-splitbutton>
+    </ng-template>
+  </kendo-grid-column>
+  <kendo-grid-column field="recordId" title="Record Id" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="lastName" title="Last Name" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="firstName" title="First Name" [width]="150"></kendo-grid-column>
+  <kendo-grid-column field="email" title="Email" [width]="200"></kendo-grid-column>
+  <kendo-grid-column field="phoneType" title="Primary Phone Type" [width]="180"></kendo-grid-column>
+  <kendo-grid-column field="leadId" title="LMP Lead ID" [width]="150"></kendo-grid-column>
   <kendo-grid-column field="appointmentType" title="Appointment Type" [width]="180"></kendo-grid-column>
   <kendo-grid-column field="bookingAgency" title="Booking Agency" [width]="180"></kendo-grid-column>
   <kendo-grid-column field="assignedDate" title="Assigned Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
   <kendo-grid-column field="salesRep" title="Sales Rep" [width]="150"></kendo-grid-column>
   <kendo-grid-column field="coordinator" title="Coordinator" [width]="150"></kendo-grid-column>
-
   <kendo-grid-column field="syncToMobile" title="Sync to Mobile" [width]="130">
     <ng-template kendoGridCellTemplate let-dataItem>
       <input type="checkbox" [checked]="dataItem.syncToMobile" disabled />
     </ng-template>
   </kendo-grid-column>
-
   <kendo-grid-column field="createdSource" title="Created Source" [width]="150"></kendo-grid-column>
-
   <kendo-grid-column field="mobileSyncStatus" title="Mobile Sync Status" [width]="180">
     <ng-template kendoGridCellTemplate>
       <span class="text-muted">N/A</span>
     </ng-template>
   </kendo-grid-column>
-
   <kendo-grid-column field="effectiveDate" title="Effective Date" filter="date" editor="date" [width]="150"></kendo-grid-column>
-  <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date" [width]="150"></kendo-grid-column> -->
+  <kendo-grid-column field="validThrough" title="Valid Through" filter="date" editor="date" [width]="150"></kendo-grid-column>
+</kendo-grid>
+
+</div>
+                                                                                           
